@@ -1,0 +1,8 @@
+name: condaenv
+channels:
+  - defaults
+dependencies:
+  - python
+  - torch
+  - pandas
+  - numpy
