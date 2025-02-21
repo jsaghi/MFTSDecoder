@@ -1,0 +1,5 @@
+name: condaenv
+channels:
+  - defaults
+dependencies:
+  - python
