@@ -19,24 +19,48 @@ class LFData(Dataset):
     downsample -= self.mean
     downsample /= self.std
     return downsample, tensor
-  
+    
 
-class HFData(Dataset):
-  def __init__(self, data, seq_length):
+class TSData(Dataset):
+  def __init__(self, data, seq_length, delay):
     self.data = data
     self.seq_length = seq_length
+    self.delay = delay
     self.mean = data.mean()
     self.std = data.std()
 
   def __len__(self):
-    return len(self.data) - self.seq_length
-
+    return len(self.data) - (self.seq_length + self.delay)
+  
   def __getitem__(self, index):
     tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
-    tensor = tensor.unsqueeze(0)
-    downsample -= self.mean
-    downsample /= self.std
-    return tensor, tensor
+    target = torch.tensor(self.data[index + self.seq_length + self.delay])
+    tensor -= self.mean
+    tensor /= self.std
+    target -= self.mean
+    target /= self.std
+    return tensor, target
+
+
+class MFTSData(Dataset):
+  def __init__(self, data, seq_length, delay):
+    self.data = data
+    self.seq_length = seq_length
+    self.delay = delay
+    self.mean = data.mean()
+    self.std = data.std()
+
+  def __len__(self):
+    return len(self.data) - (self.seq_length + self.delay)
+  
+  def __getitem__(self, index):
+    tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
+    target = torch.tensor(self.data[index + self.seq_length + self.delay])
+    tensor -= self.mean
+    tensor /= self.std
+    target -= self.mean
+    target /= self.std
+    return tensor, target
 
 jena = pd.read_csv('data/jena_climate_2009_2016.csv')
 tempc_df = jena['T (degC)']
