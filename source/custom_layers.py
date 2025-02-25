@@ -25,13 +25,14 @@ class DenseFilterExpansion(nn.Module):
 
 # Class FilterAttention
 class FilterAttention(nn.Module):
-  def __init__(self, num_filters):
+  def __init__(self, num_filters, seq_length):
     super().__init__()
     # Initialize weights and biases
     self.num_filters = num_filters
-    self.query = nn.Parameter(torch.randn(self.num_filters))
-    self.key = nn.Parameter(torch.randn(self.num_filters))
-    self.value = nn.Parameter(torch.randn(self.num_filters))
+    self.seq_length = seq_length
+    self.query = nn.Parameter(torch.randn(self.num_filters, self.seq_length))
+    self.key = nn.Parameter(torch.randn(self.num_filters, self.seq_length))
+    self.value = nn.Parameter(torch.randn(self.num_filters, self.seq_length))
 
   # Forward function
   def forward(self, inputs):
