@@ -24,6 +24,7 @@ class LFData(Dataset):
 class TSData(Dataset):
   def __init__(self, data, seq_length, delay):
     self.data = data
+    self.targets = data[:, 1]
     self.seq_length = seq_length
     self.delay = delay
     self.mean = data.mean()
@@ -34,7 +35,7 @@ class TSData(Dataset):
   
   def __getitem__(self, index):
     tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
-    target = torch.tensor(self.data[index + self.seq_length + self.delay])
+    target = torch.tensor(self.targets[index + self.seq_length + self.delay], dtype=torch.float32)
     tensor -= self.mean
     tensor /= self.std
     return tensor, target
@@ -45,6 +46,7 @@ class MFTSData(Dataset):
     self.lf_data = lf_data
     self.if_data = if_data
     self.hf_data = hf_data
+    self.targets = lf_data[:, 0]
     self.ds_ratio1 = ds_ratio1
     self.ds_ratio2 = ds_ratio2
     self.seq_length = seq_length
@@ -56,10 +58,10 @@ class MFTSData(Dataset):
     return len(self.data) - (self.seq_length + self.delay)
   
   def __getitem__(self, index):
-    lf_tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
-    if_tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
-    hf_tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
-    target = torch.tensor(self.data[index + self.seq_length + self.delay])
+    lf_tensor = torch.tensor(self.lf_data[index:index + self.seq_length], dtype=torch.float32)
+    if_tensor = torch.tensor(self.if_data[index:index + self.seq_length], dtype=torch.float32)
+    hf_tensor = torch.tensor(self.hf_data[index:index + self.seq_length], dtype=torch.float32)
+    target = torch.tensor(self.targets[index + self.seq_length + self.delay], dtype=torch.float32)
 
     lf_tensor -= self.mean
     lf_tensor /= self.std
@@ -68,8 +70,8 @@ class MFTSData(Dataset):
     hf_tensor -= self.mean
     hf_tensor /= self.std
 
-    lf_tensor = lf_tensor[::, self.ds_ratio1 - 1::self.ds_ratio1]
-    if_tensor = if_tensor[::, self.ds_ratio2 - 1::self.ds_ratio2]
+    lf_tensor = lf_tensor[self.ds_ratio1 - 1::self.ds_ratio1, :]
+    if_tensor = if_tensor[self.ds_ratio2 - 1::self.ds_ratio2, :]
 
     lf_tensor.unsqueeze(0)
     if_tensor.unsqueeze(0)
@@ -99,7 +101,7 @@ def get_temp(downsample_ratio):
 # attached decoders
 def get_ts():
   jena = pd.read_csv(JENA_PATH)
-  jena = jena.drop(['Tpot (K)', 'Date Time'], inplace=True)
+  jena.drop(['Tpot (K)', 'Date Time'], axis=1, inplace=True)
   jenanp = jena.to_numpy()
   validate_split = int((VAL_RATIO + TEST_RATIO) * len(jenanp))
   test_split = int(TEST_RATIO * len(jenanp))
@@ -121,10 +123,10 @@ def get_ts():
 # time series. This is the data pipline to train and test the combined prediction models
 def get_mfts():
   jena = pd.read_csv(JENA_PATH)
-  jena = jena.drop(['Tpot (K)', 'Date Time'], inplace=True)
-  lf_data = jena['T deg(C)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)'].to_numpy()
-  if_data = jena['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)'].to_numpy()
-  hf_data = jena['rho (g/m**3)', 'wv (m/s)', 'max. wv (m/s)', 'wd (deg)'].to_numpy()
+  jena.drop(['Tpot (K)', 'Date Time'], axis=1, inplace=True)
+  lf_data = jena[['T (degC)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)']].to_numpy()
+  if_data = jena[['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)']].to_numpy()
+  hf_data = jena[['rho (g/m**3)', 'wv (m/s)', 'max. wv (m/s)', 'wd (deg)']].to_numpy()
 
   validate_split = int((VAL_RATIO + TEST_RATIO) * len(lf_data))
   test_split = int(TEST_RATIO * len(lf_data))
