@@ -1,7 +1,7 @@
 from custom_layers import DenseFilterExpansion, FilterAttention
 
 # Class to expand an input by a ratio of 36 to 1
-class Expader36X(nn.Module):
+class Expander36X(nn.Module):
   def __init__(self, input_shape):
     super().__init__()
     self.dfe = DenseFilterExpansion(4096, input_shape[-1])
