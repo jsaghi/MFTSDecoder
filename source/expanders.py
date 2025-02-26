@@ -1,4 +1,8 @@
+from settings import *
 from custom_layers import DenseFilterExpansion, FilterAttention
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 # Class to expand an input by a ratio of 36 to 1
 class Expander36X(nn.Module):
@@ -80,3 +84,34 @@ class Expander6X(nn.Module):
     outputs = self.conv10(outputs)
     outputs = self.conv11(outputs)
     return outputs
+  
+
+# Class that stacks 5 Expader36X modules, splits inputs along features, feeds
+# each feature through a separate expander, and then stacks the outputs again
+class LFExpanderStack(nn.Module):
+  def __init__(self):
+    super().__init__()
+    self.expander_stack = [Expander36X((1, LF_LENGTH))] * 5
+
+  def forward(self, inputs):
+    in_slices = torch.split(inputs, 1, dim=1)
+    out_slices = []
+    for i, slice in enumerate(in_slices):
+      out_slices.append(self.expander_stack[i](slice))
+    return torch.squeeze(torch.stack(out_slices, dim=-1), dim=1)
+  
+
+# Class that stacks 4 Expader6X modules, splits inputs along features, feeds
+# each feature through a separate expander, and then stacks the outputs again
+class IFExpanderStack(nn.Module):
+  def __init__(self):
+    super().__init__()
+    self.expander_stack = [Expander6X((1, IF_LENGTH))] * 4
+
+  def forward(self, inputs):
+    in_slices = torch.split(inputs, 1, dim=1)
+    out_slices = []
+    for i, slice in enumerate(in_slices):
+      out_slices.append(self.expander_stack[i](slice))
+    return torch.squeeze(torch.stack(out_slices, dim=-1), dim=1)
+  
