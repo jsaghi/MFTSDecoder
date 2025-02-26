@@ -89,9 +89,9 @@ class Expander6X(nn.Module):
 # Class that stacks 5 Expader36X modules, splits inputs along features, feeds
 # each feature through a separate expander, and then stacks the outputs again
 class LFExpanderStack(nn.Module):
-  def __init__(self):
+  def __init__(self, num_features):
     super().__init__()
-    self.expander_stack = [Expander36X((1, LF_LENGTH))] * 5
+    self.expander_stack = [Expander36X((1, LF_LENGTH))] * num_features
 
   def forward(self, inputs):
     in_slices = torch.split(inputs, 1, dim=1)
@@ -104,9 +104,9 @@ class LFExpanderStack(nn.Module):
 # Class that stacks 4 Expader6X modules, splits inputs along features, feeds
 # each feature through a separate expander, and then stacks the outputs again
 class IFExpanderStack(nn.Module):
-  def __init__(self):
+  def __init__(self, num_features):
     super().__init__()
-    self.expander_stack = [Expander6X((1, IF_LENGTH))] * 4
+    self.expander_stack = [Expander6X((1, IF_LENGTH))] * num_features
 
   def forward(self, inputs):
     in_slices = torch.split(inputs, 1, dim=1)
