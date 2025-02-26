@@ -23,7 +23,7 @@ class DenseFilterExpansion(nn.Module):
     for i in range(self.seq_length):
       slices.append(torch.matmul(in_slice[i], torch.transpose(w_slice[i], 0, 1)))
     # Stack outputs and remove the dimension added by the stack operation
-    outputs = torch.squeeze(torch.stack(slices, axis=-1), dim=1)
+    outputs = torch.squeeze(torch.stack(slices, dim=-1), dim=1)
     # Add biases and return
     return outputs + self.b
   
