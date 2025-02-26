@@ -94,10 +94,10 @@ class LFExpanderStack(nn.Module):
     self.expander_stack = [Expander36X((1, LF_LENGTH))] * num_features
 
   def forward(self, inputs):
-    in_slices = torch.split(inputs, 1, dim=1)
+    in_slices = torch.split(inputs, 1, dim=-1)
     out_slices = []
     for i, slice in enumerate(in_slices):
-      out_slices.append(self.expander_stack[i](slice))
+      out_slices.append(self.expander_stack[i](slice.transpose(-1, -2)))
     return torch.squeeze(torch.stack(out_slices, dim=-1), dim=1)
   
 
@@ -109,9 +109,10 @@ class IFExpanderStack(nn.Module):
     self.expander_stack = [Expander6X((1, IF_LENGTH))] * num_features
 
   def forward(self, inputs):
-    in_slices = torch.split(inputs, 1, dim=1)
+    in_slices = torch.split(inputs, 1, dim=-1)
+    in_slices = torch.transpose()
     out_slices = []
     for i, slice in enumerate(in_slices):
-      out_slices.append(self.expander_stack[i](slice))
+      out_slices.append(self.expander_stack[i](slice.transpose(-1, -2)))
     return torch.squeeze(torch.stack(out_slices, dim=-1), dim=1)
   
