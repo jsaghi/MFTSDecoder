@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 # Class to expand an input by a ratio of 36 to 1
 class Expander36X(nn.Module):
   def __init__(self, input_shape):
