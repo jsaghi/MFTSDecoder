@@ -39,7 +39,7 @@ class Expander36X(nn.Module):
     outputs = self.conv6(outputs)
     outputs = self.conv7(outputs)
     outputs = self.conv8(outputs)
-    outputs = self.conv9(outputs)
+    outputs = F.sigmoid(self.conv9(outputs))
     return outputs
   
 
@@ -83,7 +83,7 @@ class Expander6X(nn.Module):
     outputs = self.conv8(outputs)
     outputs = self.conv9(outputs)
     outputs = self.conv10(outputs)
-    outputs = self.conv11(outputs)
+    outputs = F.sigmoid(self.conv11(outputs))
     return outputs
   
 
