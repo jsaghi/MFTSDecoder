@@ -6,19 +6,23 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 
-# Downsampling dataset class for training and evaluating decoder models
+# Downsampling dataset class for training and evaluating decoder models. Scales both inputs
+# and targets using the MinMaxScaler. Outputs have a shape of:
+# ((1, seq_length / downsample_ratio), (1, seq_length))
 class LFData(Dataset):
   def __init__(self, data, seq_length, downsample_ratio):
     self.data = data
     self.seq_length = seq_length
     self.downsample_ratio = downsample_ratio
+    self.scaler = MinMaxScaler()
 
   def __len__(self):
     return len(self.data) - self.seq_length
 
   def __getitem__(self, index):
-    tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
-    tensor = tensor.unsqueeze(0)
+    scaled_data = self.scaler.fit_transform(self.data.reshape(-1, 1))
+    tensor = torch.tensor(scaled_data[index:index + self.seq_length], dtype=torch.float32)
+    tensor = tensor.transpose(0, 1)
     downsample = tensor[::, self.downsample_ratio - 1::self.downsample_ratio]
     return downsample, tensor
     
