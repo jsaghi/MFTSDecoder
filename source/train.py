@@ -21,7 +21,7 @@ def train(model, train_loader, val_loader, num_epochs, save_name):
     model.train(True)
     running_loss = 0.0
 
-    for i, inputs, targets in enumerate(train_loader):
+    for i, (inputs, targets) in enumerate(train_loader):
       inputs, targets = inputs.to(device), targets.to(device)
       optimizer.zero_grad()
       outputs = model(inputs)
@@ -32,7 +32,7 @@ def train(model, train_loader, val_loader, num_epochs, save_name):
       running_loss += loss.item()
 
       if i % 1000 == 999:
-        print(f'Epoch {epoch + 1}, Step [{i + 1}/{len(train)}], Loss: {loss.item():.4f}')
+        print(f'Epoch {epoch + 1}, Step [{i + 1}/{len(train_loader)}], Loss: {loss.item():.4f}')
 
     running_loss /= len(train_loader)
     print(f'Epoch {epoch + 1}, Loss: {running_loss}')
