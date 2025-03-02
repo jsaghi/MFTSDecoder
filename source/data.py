@@ -10,10 +10,11 @@ from sklearn.preprocessing import MinMaxScaler
 # and targets using the MinMaxScaler. Outputs have a shape of:
 # ((1, seq_length / downsample_ratio), (1, seq_length))
 class LFData(Dataset):
-  def __init__(self, data, seq_length, downsample_ratio):
+  def __init__(self, data, seq_length, downsample_ratio, scale_targets):
     self.data = data
     self.seq_length = seq_length
     self.downsample_ratio = downsample_ratio
+    self.scale_targets = scale_targets
     self.scaler = MinMaxScaler()
 
   def __len__(self):
@@ -21,10 +22,12 @@ class LFData(Dataset):
 
   def __getitem__(self, index):
     scaled_data = self.scaler.fit_transform(self.data.reshape(-1, 1))
-    tensor = torch.tensor(scaled_data[index:index + self.seq_length], dtype=torch.float32)
-    tensor = tensor.transpose(0, 1)
-    downsample = tensor[::, self.downsample_ratio - 1::self.downsample_ratio]
-    return downsample, tensor
+    scaled_tensor = torch.tensor(scaled_data.reshape(1, -1)[:, index:index + self.seq_length], dtype=torch.float32)
+    downsample = scaled_tensor[:, self.downsample_ratio - 1::self.downsample_ratio]
+    raw_tensor = torch.tensor(self.data.reshape(1, -1)[:, index:index + self.seq_length], dtype=torch.float32)
+    if self.scale_targets:
+      return downsample, scaled_tensor
+    return downsample, raw_tensor
     
 
 # Time series dataset class for evaluating predction models without decoders attached
@@ -119,14 +122,14 @@ def jena_normalize():
 
 # Function that returns a dataloader for train and validation datasets of just the 
 # temperature dataset. Used to train decoder modules
-def get_temp(downsample_ratio):
+def get_temp(downsample_ratio, scale_targets=True):
   jena = pd.read_csv(JENA_PATH)
   tempc_df = jena['T (degC)']
   train, val, test = train_val_test_split(tempc_df.to_numpy())
 
-  train_ds = LFData(train, SEQ_LENGTH, downsample_ratio)
-  val_ds = LFData(val, SEQ_LENGTH, downsample_ratio)
-  test_ds = LFData(test, SEQ_LENGTH, downsample_ratio)
+  train_ds = LFData(train, SEQ_LENGTH, downsample_ratio, scale_targets)
+  val_ds = LFData(val, SEQ_LENGTH, downsample_ratio, scale_targets)
+  test_ds = LFData(test, SEQ_LENGTH, downsample_ratio, scale_targets)
 
   train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
   val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=True)
