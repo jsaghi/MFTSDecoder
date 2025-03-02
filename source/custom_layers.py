@@ -58,3 +58,32 @@ class FilterAttention(nn.Module):
     output = torch.unsqueeze(output, dim=-2)
     return output
 
+
+# Class for convolutional filter with insertion. Filter iterates over input,
+# then the output of the filter is inserted into the input at intervals of
+# kernel_size + 1
+class ConvInsert(nn.Module):
+  def __init__(self, input_size, kernel_size):
+    super().__init__()
+    self.kernel_size = kernel_size
+    self.output_length = (4 * input_size) // kernel_size - 2
+    self.w1 = nn.Parameter(torch.randn(self.kernel_size, 1))
+    self.w2 = nn.Parameter(torch.randn(self.kernel_size, 1))
+    self.b = nn.Parameter(torch.zeros(self.output_length, 1))
+
+  def forward(self, inputs):
+    in_slices = torch.split(inputs, self.kernel_size // 2, -1)
+    out_slices = []
+    for i in range(len(in_slices) - 1):
+      super_slice = torch.cat((in_slices[i], in_slices[i + 1]), dim=-1)
+      out1 = torch.matmul(super_slice, self.w1)
+      out2 = torch.matmul(super_slice, self.w2)
+      out1 += self.b[2 * i]
+      out2 += self.b[2 * i + 1]
+      out = torch.cat((out1, out2), dim=-1)
+      out_slices.append(torch.cat((in_slices[i], out), dim=-1))
+      if i == len(in_slices) - 2:
+        out_slices.append(in_slices[i + 1])
+    outputs = torch.cat(out_slices, dim=-1)
+    return outputs
+  
