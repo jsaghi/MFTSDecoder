@@ -166,9 +166,12 @@ def get_mfts():
   if_train, if_val, if_test = train_val_test_split(if_data)
   hf_train, hf_val, hf_test = train_val_test_split(hf_data)
 
-  train_ds = MFTSData(lf_train, if_train, hf_train, DOWNSAMPLE_RATIO1, DOWNSAMPLE_RATIO2, SEQ_LENGTH, DELAY)
-  val_ds = MFTSData(lf_val, if_val, hf_val, DOWNSAMPLE_RATIO1, DOWNSAMPLE_RATIO2, SEQ_LENGTH, DELAY)
-  test_ds = MFTSData(lf_test, if_test, hf_test, DOWNSAMPLE_RATIO1, DOWNSAMPLE_RATIO2, SEQ_LENGTH, DELAY)
+  train_ds = MFTSData(lf_train, if_train, hf_train, (SEQ_LENGTH // LF_LENGTH),
+                      (SEQ_LENGTH // IF_LENGTH), SEQ_LENGTH, DELAY)
+  val_ds = MFTSData(lf_val, if_val, hf_val, (SEQ_LENGTH // LF_LENGTH),
+                    (SEQ_LENGTH // IF_LENGTH), SEQ_LENGTH, DELAY)
+  test_ds = MFTSData(lf_test, if_test, hf_test, (SEQ_LENGTH // LF_LENGTH),
+                     (SEQ_LENGTH // IF_LENGTH), SEQ_LENGTH, DELAY)
 
   train_loader = DataLoader(train_ds, batch_size = BATCH_SIZE, shuffle=True)
   val_loader = DataLoader(val_ds, batch_size = BATCH_SIZE, shuffle=True)
