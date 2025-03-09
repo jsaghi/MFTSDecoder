@@ -1,6 +1,7 @@
 from settings import *
 import torch
 from torch.utils.data import Dataset, DataLoader
+from pytorch_forecasting import TimeSeriesDataSet
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -28,23 +29,6 @@ class LFData(Dataset):
     if self.scale_targets:
       return downsample, scaled_tensor
     return downsample, raw_tensor
-    
-
-# Time series dataset class for evaluating predction models without decoders attached
-class TSData(Dataset):
-  def __init__(self, data, seq_length, delay):
-    self.data = data[:, :-1]
-    self.targets = data[:, -1]
-    self.seq_length = seq_length
-    self.delay = delay
-
-  def __len__(self):
-    return len(self.data) - (self.seq_length + self.delay)
-  
-  def __getitem__(self, index):
-    tensor = torch.tensor(self.data[index:index + self.seq_length], dtype=torch.float32)
-    target = torch.tensor(self.targets[index + self.seq_length + self.delay], dtype=torch.float32)
-    return tensor, target
 
 
 # Mixed Frequency dataset class for training combined models
@@ -89,14 +73,75 @@ def train_val_test_split(data):
   return train, val, test
 
 
+# Function to build a pytorch_forecasting TimeSeriesDataSet for the TFT model from an input
+# pre-scaled pandas dataframe of the jena climate data
+def build_time_series(data):
+  training_cutoff = data['time_idx'].max() - DELAY
+  tsds = TimeSeriesDataSet(
+  data[lambda x: x.time_idx <= training_cutoff],
+  time_idx = 'time_idx',
+  target = 'Targets',
+  max_encoder_length = SEQ_LENGTH,
+  max_prediction_length = DELAY,
+  time_varying_known_categoricals = ['season'],
+  time_varying_known_reals = ['month', 'hour_of_day'],
+  time_varying_unknown_reals = [
+      'T (degC)',
+      'Tdew (degC)',
+      'rh (%)',
+      'p (mbar)',
+      'VPmax (mbar)',
+      'VPact (mbar)',
+      'VPdef (mbar)',
+      'sh (g/kg)',
+      'H2OC (mmol/mol)',
+      'rho (g/m**3)',
+      'wv (m/s)',
+      'max wv (m/s)',
+      'wd (deg)'
+  ],
+  group_ids = ['group_id'],
+  target_normalizer = None,
+  add_relative_time_idx = False,
+  add_target_scales = False,
+  add_encoder_length = False,
+  allow_missing_timesteps = True
+  )
+  return tsds
+
+
+# Helper function to generate categorical season categories based on the month in a 
+# pd.DataFrame of the jena climate dataset
+def get_seasons(month):
+  if month in [12, 1, 2]:
+    return 'winter'
+  elif month in [3, 4, 5]:
+    return 'spring'
+  elif month in [6, 7, 8]:
+    return 'summer'
+  else:
+    return 'fall'
+
+
 # Function to return normalized values of the jena climate dataset. Right-skewed features
 # Have a modified logarithmic transform applied, and then min-max scaling is applied to all
 # features except for temperature. This is because temperature will be the target, so 
 # min-max scaling is applied to temperature inside of the relevant torch Dataset classes
-def jena_normalize():
+def scale_jena():
+  scaler = MinMaxScaler()
   jena = pd.read_csv(JENA_PATH)
+
   jena.drop(['Tpot (K)'], axis=1, inplace=True)
-  date_time = jena['Date Time']
+  jena['Date Time'] = pd.to_datetime(jena['Date Time'], format='%d.%m.%Y %H:%M:%S')
+  group_id = pd.DataFrame(np.zeros(jena.shape[0], dtype=np.int32), columns=['group_id'])
+  jena['season'] = jena['Date Time'].dt.month.apply(get_seasons)
+  jena['month'] = jena['Date Time'].dt.month.astype(int)
+  jena['hour_of_day'] = jena['Date Time'].dt.hour.astype(int)
+  time_idx = np.arange(jena.shape[0])
+
+  unscaled = pd.concat([pd.DataFrame(time_idx, columns=['time_idx']),
+                      jena[['Date Time', 'season', 'month', 'hour_of_day']],
+                      group_id], axis=1)
   targets = jena['T (degC)'].rename('Targets')
   log_transform = jena[['VPmax (mbar)',
                         'VPdef (mbar)',
@@ -105,6 +150,9 @@ def jena_normalize():
                         'wv (m/s)',
                         'max. wv (m/s)']].apply(lambda x: np.log(x + 1))
   jena.drop(['Date Time',
+             'season',
+             'month',
+             'hour_of_day',
              'VPmax (mbar)',
              'VPdef (mbar)',
              'sh (g/kg)',
@@ -112,12 +160,11 @@ def jena_normalize():
              'wv (m/s)',
              'max. wv (m/s)'], axis=1, inplace=True)
   
-  scaler = MinMaxScaler()
-  logt_scaled = pd.DataFrame(scaler.fit_transform(log_transform),
-                             columns=log_transform.columns)
-  jena_scaled = pd.DataFrame(scaler.fit_transform(jena), columns=jena.columns)
-  output_df = pd.concat([date_time, jena_scaled, logt_scaled, targets], axis=1)
-  return output_df
+  scaled_data = pd.concat([log_transform, jena], axis=1)
+  scaled_df = pd.DataFrame(scaler.fit_transform(scaled_data), columns=scaled_data.columns)
+  jena_scaled = pd.concat([unscaled, scaled_df, targets], axis=1)
+  jena_scaled.rename(columns={'max. wv (m/s)': 'max wv (m/s)'}, inplace=True)
+  return jena_scaled
 
 
 # Function that returns a dataloader for train and validation datasets of just the 
@@ -140,30 +187,26 @@ def get_temp(downsample_ratio, scale_targets=True):
 # Function that returns a time series dataset for the jena climate dataset. Returns
 # a dataloader for train, validation, and test datasets. Used to train prediction models without
 # attached decoders
-def get_ts():
-  data = jena_normalize()
-  data.drop(['Date Time'], axis=1, inplace=True)
-  train, val, test = train_val_test_split(data.to_numpy())
-
-  train_ds = TSData(train, SEQ_LENGTH, DELAY)
-  val_ds = TSData(val, SEQ_LENGTH, DELAY)
-  test_ds = TSData(test, SEQ_LENGTH, DELAY)
-
-  train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
-  val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=True)
-  test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=True)
-
-  return train_loader, val_loader, test_loader
+def get_time_series():
+  jena_scaled = scale_jena()
+  train, val, test = train_val_test_split(jena_scaled)
+  training = build_time_series(train)
+  validation = build_time_series(val)
+  testing = build_time_series(test)
+  train_loader = training.to_dataloader(train=True, batch_size=BATCH_SIZE)
+  val_loader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE)
+  test_loader = testing.to_dataloader(train=False, batch_size=BATCH_SIZE)
+  return (train_loader, val_loader, test_loader)
 
 
 # Function that returns train, validation, and test dataloaders for mixed frequency multivariate
 # time series. This is the data pipline to train and test the combined prediction models
 def get_mfts():
-  data = jena_normalize()
+  data = scale_jena()
   data.drop(['Date Time'], axis=1, inplace=True)
   lf_data = data[['T (degC)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)']].to_numpy()
   if_data = data[['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)']].to_numpy()
-  hf_data = data[['rho (g/m**3)', 'wv (m/s)', 'max. wv (m/s)', 'wd (deg)', 'Targets']].to_numpy()
+  hf_data = data[['rho (g/m**3)', 'wv (m/s)', 'max wv (m/s)', 'wd (deg)', 'Targets']].to_numpy()
 
   lf_train, lf_val, lf_test = train_val_test_split(lf_data)
   if_train, if_val, if_test = train_val_test_split(if_data)
