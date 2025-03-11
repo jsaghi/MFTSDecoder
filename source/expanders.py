@@ -56,10 +56,6 @@ class Expander6X(nn.Module):
     self.conv3 = nn.ConvTranspose1d(in_channels=64, out_channels=128, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
     self.fa2 = FilterAttention(128, 1008)
-    self.conv4 = nn.ConvTranspose1d(in_channels=64, out_channels=128, kernel_size=5,
-                      stride=2, padding=2, output_padding=1)
-    self.conv3 = nn.ConvTranspose1d(in_channels=64, out_channels=128, kernel_size=5,
-                      stride=2, padding=2, output_padding=1)
 
   def forward(self, inputs):
     outputs = self.conv1(inputs)
