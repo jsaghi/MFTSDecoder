@@ -1,8 +1,14 @@
-name: condaenv
+name: MFTSEnv
 channels:
   - defaults
+  - -forge
 dependencies:
-  - python
-  - torch
+  - pytorch
+  - pytorch-lightning
+  - pytorch-forecasting
   - pandas
   - numpy
+  - scikit-learn
+  - pip
+  - pip:
+    - torch
