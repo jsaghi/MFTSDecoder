@@ -5,6 +5,7 @@ SEQ_LENGTH = 1008
 LF_LENGTH = 28
 IF_LENGTH = 168
 DELAY = 432
+LR = 1e-4
 JENA_PATH = '../data/jena_climate_2009_2016.csv'
 MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
