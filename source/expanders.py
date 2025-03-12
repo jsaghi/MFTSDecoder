@@ -3,6 +3,7 @@ from custom_layers import DenseFilterExpansion, FilterAttention, ConvInsert
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import lightning as L
 
 
 # Class to expand an input by a ratio of 36 to 1
@@ -96,4 +97,30 @@ class IFExpanderStack(nn.Module):
     for i, slice in enumerate(in_slices):
       out_slices.append(self.expander_stack[i](slice.transpose(-1, -2)))
     return torch.squeeze(torch.stack(out_slices, dim=-1), dim=1)
+  
+
+# Lightning wrapper class for decoder only training
+class LightningDecoder(L.LightningModule):
+  def __init__(self, model):
+    super().__init__()
+    self.decoder=model
+
+  def training_step(self, batch, batch_idx):
+    x, y = batch
+    loss_fn = nn.MSELoss()
+    y_hat = self.decoder(x)
+    loss = loss_fn(y_hat, y)
+    self.log('train_loss', loss)
+    return loss
+
+  def validation_step(self, batch, batch_idx):
+    x, y = batch
+    loss_fn = nn.MSELoss()
+    y_hat = self.decoder(x)
+    loss = loss_fn(y_hat, y)
+    self.log('val_loss', loss)
+
+  def configure_optimizers(self):
+    optimizer = torch.optim.Adam(self.decoder.parameters(), lr=LR)
+    return optimizer
   
