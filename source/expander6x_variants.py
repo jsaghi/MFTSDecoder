@@ -1,3 +1,4 @@
+from settings import *
 from custom_layers import DenseFilterExpansion, FilterAttention, ConvInsert
 import torch
 import torch.nn as nn
@@ -6,7 +7,7 @@ import torcn.nn.functional as F
 
 # Decoder class to expand by a ratio of 6 to 1
 class Expander6XBase(nn.Module):
-  def __init__(self, input_shape):
+  def __init__(self):
     super().__init__()
     self.conv1 = nn.ConvTranspose1d(in_channels=1, out_channels=64, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
@@ -16,7 +17,7 @@ class Expander6XBase(nn.Module):
                        kernel_size=3, stride=1, padding=0)
     self.conv3 = nn.ConvTranspose1d(in_channels=64, out_channels=128, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
-    self.fa2 = FilterAttention(128, 1008)
+    self.fa2 = FilterAttention(128, SEQ_LENGTH)
 
   def forward(self, inputs):
     outputs = self.conv1(inputs)
@@ -30,9 +31,9 @@ class Expander6XBase(nn.Module):
 
 # Model which adds the dense filter expansion layer before the first convolutonal layer
 class Expander6XDFE(nn.Module):
-  def __init__(self, input_shape):
+  def __init__(self):
     super().__init__()
-    self.dfe1 = DenseFilterExpansion(num_filters=32, seq_length=input_shape[-1])
+    self.dfe1 = DenseFilterExpansion(num_filters=32, seq_length=IF_LENGTH)
     self.conv1 = nn.ConvTranspose1d(in_channels=32, out_channels=64, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
     self.fa1 = FilterAttention(64, 336)
@@ -41,7 +42,7 @@ class Expander6XDFE(nn.Module):
                        kernel_size=3, stride=1, padding=0)
     self.conv3 = nn.ConvTranspose1d(in_channels=64, out_channels=128, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
-    self.fa2 = FilterAttention(128, 1008)
+    self.fa2 = FilterAttention(128, SEQ_LENGTH)
 
   def forward(self, inputs):
     outputs = F.tanh(self.dfe1(inputs))
@@ -56,7 +57,7 @@ class Expander6XDFE(nn.Module):
 
 # Base 6x decoder with half as many parameters
 class Expander6XHalfP(nn.Module):
-  def __init__(self, input_shape):
+  def __init__(self):
     super().__init__()
     self.conv1 = nn.ConvTranspose1d(in_channels=1, out_channels=32, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
@@ -66,7 +67,7 @@ class Expander6XHalfP(nn.Module):
                        kernel_size=3, stride=1, padding=0)
     self.conv3 = nn.ConvTranspose1d(in_channels=32, out_channels=64, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
-    self.fa2 = FilterAttention(64, 1008)
+    self.fa2 = FilterAttention(64, SEQ_LENGTH)
 
   def forward(self, inputs):
     outputs = self.conv1(inputs)
@@ -80,9 +81,9 @@ class Expander6XHalfP(nn.Module):
 
 # DFE decoder with half as many parameters
 class Expander6XDFEHalfP(nn.Module):
-  def __init__(self, input_shape):
+  def __init__(self):
     super().__init__()
-    self.dfe1 = DenseFilterExpansion(num_filters=16, seq_length=input_shape[-1])
+    self.dfe1 = DenseFilterExpansion(num_filters=16, seq_length=IF_LENGTH)
     self.conv1 = nn.ConvTranspose1d(in_channels=16, out_channels=32, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
     self.fa1 = FilterAttention(32, 336)
@@ -91,7 +92,7 @@ class Expander6XDFEHalfP(nn.Module):
                        kernel_size=3, stride=1, padding=0)
     self.conv3 = nn.ConvTranspose1d(in_channels=32, out_channels=64, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
-    self.fa2 = FilterAttention(64, 1008)
+    self.fa2 = FilterAttention(64, SEQ_LENGTH)
 
   def forward(self, inputs):
     outputs = F.tanh(self.dfe1(inputs))
@@ -106,7 +107,7 @@ class Expander6XDFEHalfP(nn.Module):
 
 # Base 6x decoder with twice as many parameters
 class Expander6XDoubleP(nn.Module):
-  def __init__(self, input_shape):
+  def __init__(self):
     super().__init__()
     self.conv1 = nn.ConvTranspose1d(in_channels=1, out_channels=128, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
@@ -116,7 +117,7 @@ class Expander6XDoubleP(nn.Module):
                        kernel_size=3, stride=1, padding=0)
     self.conv3 = nn.ConvTranspose1d(in_channels=128, out_channels=256, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
-    self.fa2 = FilterAttention(256, 1008)
+    self.fa2 = FilterAttention(256, SEQ_LENGTH)
 
   def forward(self, inputs):
     outputs = self.conv1(inputs)
@@ -130,9 +131,9 @@ class Expander6XDoubleP(nn.Module):
 
 # DFE decoder with twice as many parameters
 class Expander6XDFEDoubleP(nn.Module):
-  def __init__(self, input_shape):
+  def __init__(self):
     super().__init__()
-    self.dfe1 = DenseFilterExpansion(num_filters=64, seq_length=input_shape[-1])
+    self.dfe1 = DenseFilterExpansion(num_filters=64, seq_length=IF_LENGTH)
     self.conv1 = nn.ConvTranspose1d(in_channels=64, out_channels=128, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
     self.fa1 = FilterAttention(128, 336)
@@ -141,7 +142,7 @@ class Expander6XDFEDoubleP(nn.Module):
                        kernel_size=3, stride=1, padding=0)
     self.conv3 = nn.ConvTranspose1d(in_channels=128, out_channels=256, kernel_size=5,
                       stride=2, padding=2, output_padding=1)
-    self.fa2 = FilterAttention(256, 1008)
+    self.fa2 = FilterAttention(256, SEQ_LENGTH)
 
   def forward(self, inputs):
     outputs = F.tanh(self.dfe1(inputs))
