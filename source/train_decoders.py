@@ -51,7 +51,7 @@ for key, value in dict_6x.items():
     callbacks=[checkpoint_callback],
   )
 
-  trainer.fit(value, if_train_loader, if_val_loader)
+  trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)
 
 # Train all models in the 36x dictionary
 for key, value in dict_36x.items():
@@ -70,4 +70,4 @@ for key, value in dict_36x.items():
     callbacks=[checkpoint_callback],
   )
 
-  trainer.fit(value, if_train_loader, if_val_loader)
+  trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)
