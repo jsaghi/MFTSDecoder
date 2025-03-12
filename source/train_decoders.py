@@ -45,7 +45,7 @@ for key, value in dict_6x.items():
     mode='min',
     verbose=True
   )
-  trainer = L.trainer(
+  trainer = L.Trainer(
     max_epochs=20,
     logger=logger,
     callbacks=[checkpoint_callback],
@@ -64,7 +64,7 @@ for key, value in dict_36x.items():
     mode='min',
     verbose=True
   )
-  trainer = L.trainer(
+  trainer = L.Trainer(
     max_epochs=20,
     logger=logger,
     callbacks=[checkpoint_callback],
