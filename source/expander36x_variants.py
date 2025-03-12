@@ -189,7 +189,6 @@ class Expander36XConvInA(nn.Module):
 class Expander36XConvInHalfP(nn.Module):
   def __init__(self):
     super().__init__()
-    self.dfe1 = DenseFilterExpansion()
     self.conv1 = nn.ConvTranspose1d(in_channels=1, out_channels=512,
                        kernel_size=5, stride=2, padding=2, output_padding=1)
     self.conv2 = nn.ConvTranspose1d(in_channels=512, out_channels=256,
