@@ -10,6 +10,7 @@ dependencies:
   - numpy
   - scikit-learn
   - tensorboard
+  - protobuf=3.20.1
   - pip
   - pip:
     - torch
