@@ -2,7 +2,7 @@ from settings import *
 from custom_layers import DenseFilterExpansion, FilterAttention, ConvInsert
 import torch
 import torch.nn as nn
-import torcn.nn.functional as F
+import torch.nn.functional as F
 
 
 # Decoder class to expand by a ratio of 6 to 1
