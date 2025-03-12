@@ -178,9 +178,9 @@ def get_temp(downsample_ratio, scale_targets=True):
   val_ds = LFData(val, SEQ_LENGTH, downsample_ratio, scale_targets)
   test_ds = LFData(test, SEQ_LENGTH, downsample_ratio, scale_targets)
 
-  train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
-  val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=True)
-  test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=True)
+  train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, num_workers=5)
+  val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=5)
+  test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=5)
   return train_loader, val_loader, test_loader
 
 
