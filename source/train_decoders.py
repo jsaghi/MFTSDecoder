@@ -4,8 +4,8 @@ from expanders import LightningDecoder
 from expander6x_variants import *
 from expander36x_variants import *
 import lightning as L
-from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.loggers import TensorBoardLogger
+from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.loggers import TensorBoardLogger
 
 
 # Build two dictionaries of models:
