@@ -40,7 +40,7 @@ for key, value in dict_6x.items():
   checkpoint_callback = ModelCheckpoint(
     moniotr='val_loss',
     dirpath=MODEL_PATH,
-    filename=f'{key}-model-{epoch:02d}-{val_loss:.2f}',
+    filename=key,
     save_top_k=1,
     mode='min',
     verbose=True
