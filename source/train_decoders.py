@@ -38,7 +38,7 @@ if_train_loader, if_val_loader, _ = data.get_temp(SEQ_LENGTH // IF_LENGTH, False
 for key, value in dict_6x.items():
   logger = TensorBoardLogger(HISTORY_PATH + key)
   checkpoint_callback = ModelCheckpoint(
-    moniotr='val_loss',
+    monitor='val_loss',
     dirpath=MODEL_PATH,
     filename=key,
     save_top_k=1,
@@ -57,9 +57,9 @@ for key, value in dict_6x.items():
 for key, value in dict_36x.items():
   logger = TensorBoardLogger(HISTORY_PATH + key)
   checkpoint_callback = ModelCheckpoint(
-    moniotr='val_loss',
+    monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename=f'{key}-model-{epoch:02d}-{val_loss:.2f}',
+    filename=key,
     save_top_k=1,
     mode='min',
     verbose=True
