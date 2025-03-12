@@ -5,7 +5,7 @@ from expander6x_variants import *
 from expander36x_variants import *
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
-from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch import loggers as pl_loggers
 
 
 # Build two dictionaries of models:
@@ -36,7 +36,7 @@ if_train_loader, if_val_loader, _ = data.get_temp(SEQ_LENGTH // IF_LENGTH, False
 
 # Train all models in the 6x dictionary
 for key, value in dict_6x.items():
-  logger = TensorBoardLogger(HISTORY_PATH + key)
+  logger = pl_loggers.TensorBoardLogger(save_dir=HISTORY_PATH + key)
   checkpoint_callback = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
