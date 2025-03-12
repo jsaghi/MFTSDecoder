@@ -35,7 +35,7 @@ lf_train_loader, lf_val_loader, _ = data.get_temp(SEQ_LENGTH // LF_LENGTH, False
 if_train_loader, if_val_loader, _ = data.get_temp(SEQ_LENGTH // IF_LENGTH, False)
 
 # Train all models in the 6x dictionary
-for key, value in dict_6x:
+for key, value in dict_6x.items():
   logger = TensorBoardLogger(HISTORY_PATH + key)
   checkpoint_callback = ModelCheckpoint(
     moniotr='val_loss',
@@ -54,7 +54,7 @@ for key, value in dict_6x:
   trainer.fit(value, if_train_loader, if_val_loader)
 
 # Train all models in the 36x dictionary
-for key, value in dict_36x:
+for key, value in dict_36x.items():
   logger = TensorBoardLogger(HISTORY_PATH + key)
   checkpoint_callback = ModelCheckpoint(
     moniotr='val_loss',
@@ -71,4 +71,3 @@ for key, value in dict_36x:
   )
 
   trainer.fit(value, if_train_loader, if_val_loader)
-  
