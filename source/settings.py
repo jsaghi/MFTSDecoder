@@ -8,3 +8,13 @@ DELAY = 432
 JENA_PATH = '../data/jena_climate_2009_2016.csv'
 MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
+
+# Settings for the TFT Model
+TFT_LR = 1e-3
+HIDDEN_SIZE = 16
+ATTENTION_HEAD_SIZE = 4
+DROPOUT = 0.1
+HIDDEN_CONTINUOUS_SIZE = 8
+LOG_INTERVAL = 10
+TFT_OPTIMIZER = 'Adam'
+PATIENCE = 4
