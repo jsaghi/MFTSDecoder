@@ -1,5 +1,6 @@
 from settings import *
 import data
+import train
 from expanders import LightningDecoder
 from expander6x_variants import *
 from expander36x_variants import *
@@ -36,6 +37,8 @@ if_train_loader, if_val_loader, _ = data.get_temp(SEQ_LENGTH // IF_LENGTH, False
 
 # Train all models in the 6x dictionary
 for key, value in dict_6x.items():
+  train.train(value, if_train_loader, if_val_loader, 10, key)
+  '''
   logger = CSVLogger(save_dir=HISTORY_PATH + key)
   checkpoint_callback = ModelCheckpoint(
     monitor='val_loss',
@@ -51,7 +54,8 @@ for key, value in dict_6x.items():
     callbacks=[checkpoint_callback],
   )
 
-  trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)
+  trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)'
+  '''
 
 # Train all models in the 36x dictionary
 for key, value in dict_36x.items():
