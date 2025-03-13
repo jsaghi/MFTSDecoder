@@ -117,8 +117,8 @@ class LightningDecoder(L.LightningModule):
     x, y = batch
     loss_fn = nn.MSELoss()
     y_hat = self.decoder(x)
-    loss = loss_fn(y_hat, y)
-    self.log('val_loss', loss, sync_dist=True)
+    val_loss = loss_fn(y_hat, y)
+    self.log('val_loss', val_loss, sync_dist=True)
 
   def configure_optimizers(self):
     optimizer = torch.optim.Adam(self.decoder.parameters(), lr=LR)
