@@ -70,4 +70,4 @@ for key, value in dict_36x.items():
     callbacks=[checkpoint_callback],
   )
 
-  trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)
+  trainer.fit(LightningDecoder(value), lf_train_loader, lf_val_loader)
