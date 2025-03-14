@@ -101,14 +101,13 @@ class IFExpanderStack(nn.Module):
 
 # Lightning wrapper class for decoder only training
 class LightningDecoder(L.LightningModule):
-  def __init__(self, model, name):
+  def __init__(self, model):
     super().__init__()
     self.decoder=model
-    self.model_name = name
 
   def training_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = nn.MSELoss()
+    loss_fn = F.mse_loss()
     y_hat = self.decoder(x)
     loss = loss_fn(y_hat, y)
     self.log('train_loss', loss)
@@ -116,7 +115,7 @@ class LightningDecoder(L.LightningModule):
 
   def validation_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = nn.MSELoss()
+    loss_fn = F.mse_loss()
     y_hat = self.decoder(x)
     val_loss = loss_fn(y_hat, y)
     self.log('val_loss', val_loss, sync_dist=True)
