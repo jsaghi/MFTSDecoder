@@ -9,6 +9,9 @@ from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import CSVLogger
 
 
+# Set torch.matmul precision
+torch.set_float32_matmul_precision('medium')
+
 # Build two dictionaries of models:
 dict_6x = {
   '6xBase': Expander6XBase(),
@@ -37,25 +40,23 @@ if_train_loader, if_val_loader, _ = data.get_temp(SEQ_LENGTH // IF_LENGTH, False
 
 # Train all models in the 6x dictionary
 for key, value in dict_6x.items():
-  train.train(value, if_train_loader, if_val_loader, 10, key)
-  '''
   logger = CSVLogger(save_dir=HISTORY_PATH + key)
   checkpoint_callback = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
     filename=key,
-    save_top_k=1,
+    save_top_k=10,
     mode='min',
     verbose=True
   )
   trainer = L.Trainer(
-    max_epochs=20,
+    max_epochs=10,
     logger=logger,
     callbacks=[checkpoint_callback],
   )
 
-  trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)'
-  '''
+  trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)
+
 
 # Train all models in the 36x dictionary
 for key, value in dict_36x.items():
@@ -64,12 +65,12 @@ for key, value in dict_36x.items():
     monitor='val_loss',
     dirpath=MODEL_PATH,
     filename=key,
-    save_top_k=1,
+    save_top_k=10,
     mode='min',
     verbose=True
   )
   trainer = L.Trainer(
-    max_epochs=20,
+    max_epochs=10,
     logger=logger,
     callbacks=[checkpoint_callback],
   )
