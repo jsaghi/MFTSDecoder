@@ -107,17 +107,15 @@ class LightningDecoder(L.LightningModule):
 
   def training_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = F.mse_loss()
     y_hat = self.decoder(x)
-    loss = loss_fn(y_hat, y)
+    loss = F.mse_loss(y_hat, y)
     self.log('train_loss', loss)
     return loss
 
   def validation_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = F.mse_loss()
     y_hat = self.decoder(x)
-    val_loss = loss_fn(y_hat, y)
+    val_loss = F.mse_loss(y_hat, y)
     self.log('val_loss', val_loss, sync_dist=True)
 
   def configure_optimizers(self):
