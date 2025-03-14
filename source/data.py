@@ -12,20 +12,19 @@ from sklearn.preprocessing import MinMaxScaler
 # ((1, seq_length / downsample_ratio), (1, seq_length))
 class LFData(Dataset):
   def __init__(self, data, seq_length, downsample_ratio, scale_targets):
-    self.data = data
+    self.scaled = data[:, 0]
+    self.targets = data[:, 1]
     self.seq_length = seq_length
     self.downsample_ratio = downsample_ratio
     self.scale_targets = scale_targets
-    self.scaler = MinMaxScaler()
 
   def __len__(self):
-    return len(self.data) - self.seq_length
+    return len(self.targets) - self.seq_length
 
   def __getitem__(self, index):
-    scaled_data = self.scaler.fit_transform(self.data.reshape(-1, 1))
-    scaled_tensor = torch.tensor(scaled_data.reshape(1, -1)[:, index:index + self.seq_length], dtype=torch.float32)
+    scaled_tensor = torch.tensor(self.scaled.reshape(1, -1)[:, index:index + self.seq_length], dtype=torch.float32)
     downsample = scaled_tensor[:, self.downsample_ratio - 1::self.downsample_ratio]
-    raw_tensor = torch.tensor(self.data.reshape(1, -1)[:, index:index + self.seq_length], dtype=torch.float32)
+    raw_tensor = torch.tensor(self.targets.reshape(1, -1)[:, index:index + self.seq_length], dtype=torch.float32)
     if self.scale_targets:
       return downsample, scaled_tensor
     return downsample, raw_tensor
@@ -171,8 +170,11 @@ def scale_jena():
 # temperature dataset. Used to train decoder modules
 def get_temp(downsample_ratio, scale_targets=True):
   jena = pd.read_csv(JENA_PATH)
-  tempc_df = jena['T (degC)']
-  train, val, test = train_val_test_split(tempc_df.to_numpy())
+  scaler = MinMaxScaler()
+  scaled_temp = scaler.fit_transform(jena['T (degC)'].to_numpy().reshape(-1, 1))
+  scaled_df = pd.DataFrame(scaled_temp.squeeze(), columns=['scaled'])
+  lf_df = pd.concat([scaled_df, jena['T (degC)']], axis=1)
+  train, val, test = train_val_test_split(lf_df.to_numpy())
 
   train_ds = LFData(train, SEQ_LENGTH, downsample_ratio, scale_targets)
   val_ds = LFData(val, SEQ_LENGTH, downsample_ratio, scale_targets)
