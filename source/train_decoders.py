@@ -13,6 +13,7 @@ from lightning.pytorch.loggers import CSVLogger
 torch.set_float32_matmul_precision('medium')
 
 # Build two dictionaries of models:
+'''
 dict_6x = {
   '6xBase': Expander6XBase(),
   '6xHalfP': Expander6XHalfP(),
@@ -20,10 +21,11 @@ dict_6x = {
   '6xDFE': Expander6XDFE(),
   '6xDFEHalfP': Expander6XHalfP(),
   '6xDFEDoubleP': Expander6XDFEDoubleP()
-}
+}'
+'''
 
 dict_36x = {
-  '36xConv': Expander36XConvOnly(),
+  #'36xConv': Expander36XConvOnly(),
   '36xFA': Expander36XFAOnly(),
   '36xDFE': Expander36XDFEFA(),
   '36xCIn': Expander36XConvIn(),
@@ -38,6 +40,7 @@ dict_36x = {
 lf_train_loader, lf_val_loader, _ = data.get_temp(SEQ_LENGTH // LF_LENGTH, False)
 if_train_loader, if_val_loader, _ = data.get_temp(SEQ_LENGTH // IF_LENGTH, False)
 
+'''
 # Train all models in the 6x dictionary
 for key, value in dict_6x.items():
   logger = CSVLogger(save_dir=HISTORY_PATH + key)
@@ -56,7 +59,7 @@ for key, value in dict_6x.items():
   )
 
   trainer.fit(LightningDecoder(value), if_train_loader, if_val_loader)
-
+'''
 
 # Train all models in the 36x dictionary
 for key, value in dict_36x.items():
