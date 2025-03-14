@@ -101,9 +101,10 @@ class IFExpanderStack(nn.Module):
 
 # Lightning wrapper class for decoder only training
 class LightningDecoder(L.LightningModule):
-  def __init__(self, model):
+  def __init__(self, model, name):
     super().__init__()
     self.decoder=model
+    self.model_name = name
 
   def training_step(self, batch, batch_idx):
     x, y = batch
