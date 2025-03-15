@@ -12,3 +12,6 @@ dependencies:
   - pip
   - pip:
     - torch
+    - optuna
+    - statsmodels
+    - optuna-integration
