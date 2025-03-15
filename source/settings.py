@@ -9,6 +9,7 @@ LR = 1e-4
 JENA_PATH = '../data/jena_climate_2009_2016.csv'
 MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
+STUDY_PATH = '../studies/'
 
 # Settings for the TFT Model
 TFT_LR = 1e-3
