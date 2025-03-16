@@ -9,6 +9,7 @@ study = optimize_hyperparameters(
     train_dataloaders=train_loader,
     val_dataloaders=val_loader,
     model_path=MODEL_PATH,
+    logger=False,
     n_trials=200,
     max_epochs=20,
     gradient_clip_val_range=(0.01, 1.0),
@@ -19,8 +20,6 @@ study = optimize_hyperparameters(
     dropout_range=(0.1, 0.3),
     use_learning_rate_finder=True,
 )
-
-study.optimize(objective, n_trials=200, timeout=3600, n_jobs=1)
 
 with open (STUDY_PATH + 'hp_study.pkl', 'wb') as f:
   pickle.dump(study, f)
