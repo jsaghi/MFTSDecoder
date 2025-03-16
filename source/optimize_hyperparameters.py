@@ -19,5 +19,8 @@ study = optimize_hyperparameters(
     dropout_range=(0.1, 0.3),
     use_learning_rate_finder=True,
 )
+
+study.optimize(objective, n_trials=200, timeout=3600, n_jobs=1)
+
 with open (STUDY_PATH + 'hp_study.pkl', 'wb') as f:
   pickle.dump(study, f)
