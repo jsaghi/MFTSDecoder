@@ -202,7 +202,7 @@ def get_time_series(downsample_ratio = None):
   train_loader = training.to_dataloader(train=True, batch_size=BATCH_SIZE)
   val_loader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE)
   test_loader = testing.to_dataloader(train=False, batch_size=BATCH_SIZE)
-  return (train_loader, val_loader, test_loader)
+  return (training, train_loader, val_loader, test_loader)
 
 
 # Function that returns train, validation, and test dataloaders for mixed frequency multivariate
