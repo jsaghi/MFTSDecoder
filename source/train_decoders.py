@@ -47,23 +47,6 @@ early_stopping = EarlyStopping(
   verbose=True
   )
 
-logger = CSVLogger(HISTORY_PATH + '36xConv')
-checkpoint = ModelCheckpoint(
-  monitor='val_loss',
-  dirpath=MODEL_PATH,
-  filename='36xConv' + '-{epoch}',
-  save_top_k=3,
-  mode='min',
-  verbose=True
-)
-trainer = L.Trainer(
-  max_epochs=30,
-  logger=logger,
-  callbacks=[checkpoint, early_stopping],
-)
-
-trainer.fit(LightningDecoder(Expander36XConvOnly()), lf_train_loader, lf_val_loader)
-'''
 # Train all models in the 6x dictionary
 for key, value in dict_6x.items():
   logger = CSVLogger(save_dir=HISTORY_PATH + key)
@@ -101,4 +84,3 @@ for key, value in dict_36x.items():
   )
 
   trainer.fit(LightningDecoder(value), lf_train_loader, lf_val_loader)
-'''
