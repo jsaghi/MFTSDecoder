@@ -189,9 +189,13 @@ def get_temp(downsample_ratio, scale_targets=True):
 # Function that returns a time series dataset for the jena climate dataset. Returns
 # a dataloader for train, validation, and test datasets. Used to train prediction models without
 # attached decoders
-def get_time_series():
+def get_time_series(downsample_ratio = None):
   jena_scaled = scale_jena()
-  train, val, test = train_val_test_split(jena_scaled)
+  if downsample_ratio != None:
+    jena_downsampled = jena_scaled.iloc[downsample_ratio - 1::downsample_ratio, :]
+    train, val, test = train_val_test_split(jena_downsampled)
+  else:
+    train, val, test = train_val_test_split(jena_scaled)
   training = build_time_series(train)
   validation = build_time_series(val)
   testing = build_time_series(test)
