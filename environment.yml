@@ -3,7 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python = 3.12
+  - python=3.12
   - pytorch
   - pytorch-lightning
   - pytorch-forecasting
@@ -12,6 +12,7 @@ dependencies:
   - scikit-learn
   - pip
   - tensorboard
+  - sqlite
   - pip:
     - torch
     - optuna
