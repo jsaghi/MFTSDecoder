@@ -3,7 +3,7 @@ import pickle
 from settings import *
 import data
 
-train_loader, val_loader, _ = data.get_time_series()
+_, train_loader, val_loader, _ = data.get_time_series()
 
 study = optimize_hyperparameters(
     train_dataloaders=train_loader,
