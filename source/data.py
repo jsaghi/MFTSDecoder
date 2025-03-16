@@ -199,9 +199,9 @@ def get_time_series(downsample_ratio = None):
   training = build_time_series(train)
   validation = build_time_series(val)
   testing = build_time_series(test)
-  train_loader = training.to_dataloader(train=True, batch_size=BATCH_SIZE)
-  val_loader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE)
-  test_loader = testing.to_dataloader(train=False, batch_size=BATCH_SIZE)
+  train_loader = training.to_dataloader(train=True, batch_size=BATCH_SIZE, num_workers=0)
+  val_loader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE, num_workers=0)
+  test_loader = testing.to_dataloader(train=False, batch_size=BATCH_SIZE, num_workers=0)
   return (training, train_loader, val_loader, test_loader)
 
 
