@@ -1,6 +1,5 @@
 from settings import *
 import data
-import train
 from expanders import LightningDecoder
 from expander6x_variants import *
 from expander36x_variants import *
