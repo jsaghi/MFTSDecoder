@@ -12,9 +12,9 @@ lightning_tft = tft.LightningTFT(base_tft)
 
 early_stopping = EarlyStopping(
   monitor='val_loss',
-  min_delta=1e-3,
+  min_delta=1e-5,
   mode='min',
-  patience=3,
+  patience=5,
   verbose=True
   )
 logger = CSVLogger(save_dir=HISTORY_PATH + 'tft_1')
@@ -22,7 +22,7 @@ checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
     filename='tft1' + '-{epoch}',
-    save_top_k=3,
+    save_top_k=5,
     mode='min',
     verbose=True
   )
