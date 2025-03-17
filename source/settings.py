@@ -12,7 +12,7 @@ HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
 
 # Settings for the TFT Model
-TFT_LR = 1e-3
+TFT_LR = 3e-3
 HIDDEN_SIZE = 16
 ATTENTION_HEAD_SIZE = 4
 DROPOUT = 0.1
