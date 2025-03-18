@@ -12,6 +12,7 @@ def build_tft(dataset):
         learning_rate=TFT_LR,
         hidden_size=HIDDEN_SIZE,
         attention_head_size=ATTENTION_HEAD_SIZE,
+        output_size=OUTPUT_SIZE,
         dropout=DROPOUT,
         hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
         loss=QuantileLoss(),
