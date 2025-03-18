@@ -127,7 +127,7 @@ def get_seasons(month):
 # features except for temperature. This is because temperature will be the target, so 
 # min-max scaling is applied to temperature inside of the relevant torch Dataset classes
 def scale_jena():
-  scaler = StandardScaler()
+  scaler = MinMaxScaler()
   jena = pd.read_csv(JENA_PATH)
 
   jena.drop(['Tpot (K)'], axis=1, inplace=True)
