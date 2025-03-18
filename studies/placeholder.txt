@@ -1,1 +1,0 @@
-tft2 used a StandardScaler instead of MinMax, performed worse
