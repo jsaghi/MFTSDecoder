@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from pytorch_forecasting import TimeSeriesDataSet
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 # Downsampling dataset class for training and evaluating decoder models. Scales both inputs
@@ -127,7 +127,7 @@ def get_seasons(month):
 # features except for temperature. This is because temperature will be the target, so 
 # min-max scaling is applied to temperature inside of the relevant torch Dataset classes
 def scale_jena():
-  scaler = MinMaxScaler()
+  scaler = StandardScaler()
   jena = pd.read_csv(JENA_PATH)
 
   jena.drop(['Tpot (K)'], axis=1, inplace=True)
