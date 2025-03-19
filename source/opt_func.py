@@ -25,16 +25,16 @@ class LTFTLRTuner(L.LightningModule):
   
   def training_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = self.tft_model.loss
-    y_hat = self.tft_model(x)[0]
+    loss_fn = self.tft.loss
+    y_hat = self.tft(x)[0]
     loss = loss_fn(y_hat, y)
     self.log('train_loss', loss)
     return loss
 
   def validation_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = self.tft_model.loss
-    y_hat = self.tft_model(x)[0]
+    loss_fn = self.tft.loss
+    y_hat = self.tft(x)[0]
     loss = loss_fn(y_hat, y)
     self.log('val_loss', loss)
 
