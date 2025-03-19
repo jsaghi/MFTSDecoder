@@ -1,7 +1,7 @@
 import lightning as L
 import torch
 from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
-from ranger_adabelief import Ranger21 as Ranger
+from torch_optimizer import Ranger
 from lightning.pytorch.tuner import Tuner
 from lightning.pytorch.callbacks import EarlyStopping
 from pytorch_forecasting.models.temporal_fusion_transformer import TemporalFusionTransformer
