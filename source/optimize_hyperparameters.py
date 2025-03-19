@@ -1,3 +1,4 @@
+import torch
 import optuna
 from functools import partial
 import pickle
