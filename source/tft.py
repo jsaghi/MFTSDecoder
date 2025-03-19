@@ -1,7 +1,7 @@
 from settings import *
 import torch
 from pytorch_forecasting import TemporalFusionTransformer, QuantileLoss
-import torch_optimizer as optim
+import optim
 import lightning as L
 
 
