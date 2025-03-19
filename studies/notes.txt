@@ -1,1 +1,2 @@
 tft2 used a StandardScaler instead of MinMax, performed worse
+tft3 doubled the hidden size and hidden continuous size to 32 and 16 respectively and increased dropout from 0.1 to 0.2
