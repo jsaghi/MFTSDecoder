@@ -14,7 +14,7 @@ lr_objective = partial(
   val_loader=val_loader
 )
 
-lr_study = optuna.create_study(direction='minimize')
+lr_study = optuna.create_study(direction='minimize', storage=STORAGE_URL)
 lr_study.optimize(lr_objective, n_trials=20)
 
 with open (STUDY_PATH + 'lr_study.pkl', 'wb') as f:
