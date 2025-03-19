@@ -10,6 +10,7 @@ JENA_PATH = '../data/jena_climate_2009_2016.csv'
 MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
+STORAGE_URL = 'sqlite:///optuna_study.db'
 
 # Settings for the TFT Model
 HIDDEN_SIZE = 128
