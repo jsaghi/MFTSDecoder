@@ -44,6 +44,7 @@ class LTFTLRTuner(L.LightningModule):
                        weight_decay=self.weight_decay,
                        betas=(BETA1, BETA2),
                        eps=EPS,
+                       N_sma_threshold=5,
                        k=self.k,
                        alpha=self.alpha)
     return optimizer
