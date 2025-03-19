@@ -1,7 +1,7 @@
 from settings import *
 import torch
 from pytorch_forecasting import TemporalFusionTransformer, QuantileLoss
-from torch_optimizer import Ranger
+import torch_optimizer as optim
 import lightning as L
 
 
@@ -47,7 +47,7 @@ class LightningTFT(L.LightningModule):
     self.log('val_loss', loss)
 
   def configure_optimizers(self):
-    optimizer = Ranger(self.tft_model.parameters(),
+    optimizer = optim.Ranger(self.tft_model.parameters(),
                        lr=TFT_LR,
                        weight_decay=WEIGHT_DECAY,
                        betas=(BETA1, BETA2),
