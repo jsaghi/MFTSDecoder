@@ -5,7 +5,7 @@ import torch_optimizer as optim
 from lightning.pytorch.callbacks import EarlyStopping
 from pytorch_forecasting.models.temporal_fusion_transformer import TemporalFusionTransformer
 from pytorch_forecasting.metrics import QuantileLoss
-from pytorch_ligthning.loggers import CSVLogger
+from pytorch_lightning.loggers import CSVLogger
 import pickle
 from settings import *
 import data
