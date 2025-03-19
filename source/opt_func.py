@@ -49,8 +49,10 @@ class LTFTLRTuner(L.LightningModule):
     return optimizer
   
   def optimizer_step(self, epoch, batch_idx, optimizer, otpimizer_idx, closure=None):
-    optimizer.step(closure=closure)
-  
+    if closure:
+      optimizer.step(closure=closure)
+    else:
+      optimizer.step()
 
 # Trial to optimize hyperparameters for ranger optimizer
 def lr_objective(trial, dataset, train_loader, val_loader):
@@ -103,7 +105,7 @@ def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
     reduce_on_plateau_patience=PATIENCE
   )
 
-  model = LTFTLRTuner(model, lr, weight_decay, k, alpha)
+  model = LTFTLRTuner(base_model, lr, weight_decay, k, alpha)
   
   # Build trainer and train the model
   trainer = L.Trainer(
