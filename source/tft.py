@@ -1,7 +1,7 @@
 from settings import *
 import torch
 from pytorch_forecasting import TemporalFusionTransformer, QuantileLoss
-from ranger_adabelief import Ranger
+from ranger_adabelief import Ranger21 as Ranger
 import lightning as L
 
 
