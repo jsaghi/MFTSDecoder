@@ -18,5 +18,4 @@ dependencies:
     - optuna
     - statsmodels
     - optuna-integration
-    - ranger-adabelief
-    
+    - ranger-optimizer
