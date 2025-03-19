@@ -1,7 +1,7 @@
 from settings import *
 import torch
 from pytorch_forecasting import TemporalFusionTransformer, QuantileLoss
-import optim
+import torch_optimizer as optim
 import lightning as L
 
 
@@ -30,12 +30,20 @@ class LightningTFT(L.LightningModule):
   def __init__(self, model):
     super().__init__()
     self.tft_model = model
+    self.automatic_optimization=False
 
   def training_step(self, batch, batch_idx):
     x, y = batch
     loss_fn = self.tft_model.loss
     y_hat = self.tft_model(x)[0]
     loss = loss_fn(y_hat, y)
+
+    # Manual optimization
+    self.manual_backward(loss)
+    optimizer = self.optimizers()
+    optimizer.step
+    optimizer.zero_grad()
+
     self.log('train_loss', loss)
     return loss
 
