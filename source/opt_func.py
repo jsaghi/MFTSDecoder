@@ -1,7 +1,7 @@
 import lightning as L
 import torch
 from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
-import optim
+import torch_optimizer as optim
 from lightning.pytorch.callbacks import EarlyStopping
 from pytorch_forecasting.models.temporal_fusion_transformer import TemporalFusionTransformer
 from pytorch_forecasting.metrics import QuantileLoss
@@ -22,12 +22,23 @@ class LTFTLRTuner(L.LightningModule):
     self.weight_decay = weight_decay
     self.k = k
     self.alpha = alpha
+    self.automatic_optimization=False
   
   def training_step(self, batch, batch_idx):
     x, y = batch
     loss_fn = self.tft.loss
     y_hat = self.tft(x)[0]
     loss = loss_fn(y_hat, y)
+
+    self.manual_backward(loss)
+
+    optimizer = self.optimizers()
+    scheduler = self.lr_schedulers()
+
+    optimizer.step
+    optimizer.zero_grad()
+    scheduler.step()
+
     self.log('train_loss', loss)
     return loss
 
@@ -49,11 +60,6 @@ class LTFTLRTuner(L.LightningModule):
                        alpha=self.alpha)
     return optimizer
   
-  def optimizer_step(self, epoch, batch_idx, optimizer, otpimizer_idx, closure=None):
-    if closure:
-      optimizer.step(closure=closure)
-    else:
-      optimizer.step()
 
 # Trial to optimize hyperparameters for ranger optimizer
 def lr_objective(trial, dataset, train_loader, val_loader):
