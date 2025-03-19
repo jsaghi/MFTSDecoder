@@ -1,6 +1,7 @@
 from settings import *
 import torch
 from pytorch_forecasting import TemporalFusionTransformer, QuantileLoss
+from ranger_adabelief import Ranger
 import lightning as L
 
 
@@ -11,11 +12,12 @@ def build_tft(dataset):
         dataset,
         learning_rate=TFT_LR,
         hidden_size=HIDDEN_SIZE,
-        attention_head_size=ATTENTION_HEAD_SIZE,
-        #output_size=OUTPUT_SIZE,
-        dropout=DROPOUT,
         hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
-        loss=QuantileLoss(),
+        lstm_layers=LSTM_LAYERS,
+        attention_head_size=ATTENTION_HEAD_SIZE,
+        output_size=OUTPUT_SIZE,
+        dropout=DROPOUT,
+        loss=QuantileLoss(QUANTILES),
         log_interval=LOG_INTERVAL,
         optimizer=TFT_OPTIMIZER,
         reduce_on_plateau_patience=PATIENCE
@@ -32,7 +34,7 @@ class LightningTFT(L.LightningModule):
   def training_step(self, batch, batch_idx):
     x, y = batch
     loss_fn = self.tft_model.loss
-    y_hat = self.tft_model(x)['prediction']
+    y_hat = self.tft_model(x)[0]
     loss = loss_fn(y_hat, y)
     self.log('train_loss', loss)
     return loss
@@ -40,11 +42,17 @@ class LightningTFT(L.LightningModule):
   def validation_step(self, batch, batch_idx):
     x, y = batch
     loss_fn = self.tft_model.loss
-    y_hat = self.tft_model(x)['prediction']
+    y_hat = self.tft_model(x)[0]
     loss = loss_fn(y_hat, y)
     self.log('val_loss', loss)
 
   def configure_optimizers(self):
-    optimizer = torch.optim.Adam(self.tft_model.parameters(), lr=TFT_LR)
+    optimizer = Ranger(self.tft_model.parameters(),
+                       lr=TFT_LR,
+                       weight_decay=WEIGHT_DECAY,
+                       betas=(BETA1, BETA2),
+                       eps=EPS,
+                       k=K,
+                       alpha=ALPHA)
     return optimizer
   
