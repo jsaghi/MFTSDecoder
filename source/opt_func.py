@@ -48,6 +48,9 @@ class LTFTLRTuner(L.LightningModule):
                        alpha=self.alpha)
     return optimizer
   
+  def optimizer_step(self, epoch, batch_idx, optimizer, otpimizer_idx, closure=None):
+    optimizer.step(closure=closure)
+  
 
 # Trial to optimize hyperparameters for ranger optimizer
 def lr_objective(trial, dataset, train_loader, val_loader):
