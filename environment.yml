@@ -18,4 +18,4 @@ dependencies:
     - optuna
     - statsmodels
     - optuna-integration
-    - ranger-optimizer
+    - torch-optimizer
