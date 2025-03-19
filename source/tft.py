@@ -54,6 +54,6 @@ class LightningTFT(L.LightningModule):
                        eps=EPS,
                        k=K,
                        alpha=ALPHA,
-                       N_sma_threshold=5,)
+                       N_sma_threshhold=5,)
     return optimizer
   
