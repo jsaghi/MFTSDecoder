@@ -30,8 +30,8 @@ class LTFTLRTuner(L.LightningModule):
     y_hat = self.tft(x)[0]
     loss = loss_fn(y_hat, y)
 
+    # Manual optimization
     self.manual_backward(loss)
-
     optimizer = self.optimizers()
     optimizer.step
     optimizer.zero_grad()
