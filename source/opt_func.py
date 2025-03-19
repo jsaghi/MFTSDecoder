@@ -33,11 +33,8 @@ class LTFTLRTuner(L.LightningModule):
     self.manual_backward(loss)
 
     optimizer = self.optimizers()
-    scheduler = self.lr_schedulers()
-
     optimizer.step
     optimizer.zero_grad()
-    scheduler.step()
 
     self.log('train_loss', loss)
     return loss
