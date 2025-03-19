@@ -1,25 +1,41 @@
-from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
+import optuna
+from functools import partial
 import pickle
 from settings import *
 import data
+import opt_func
 
-_, train_loader, val_loader, _ = data.get_time_series()
+training, train_loader, val_loader, _ = data.get_time_series()
 
-study = optimize_hyperparameters(
-    train_dataloaders=train_loader,
-    val_dataloaders=val_loader,
-    model_path=MODEL_PATH,
-    checkpoint_callback=False,
-    n_trials=200,
-    max_epochs=20,
-    gradient_clip_val_range=(0.01, 1.0),
-    hidden_size_range=(8, 128),
-    hidden_continuous_size_range=(8, 128),
-    attention_head_size_range=(1, 4),
-    learning_rate_range=(1e-4, 1e-2),
-    dropout_range=(0.1, 0.3),
-    use_learning_rate_finder=True,
+lr_objective = partial(
+  opt_func.lr_objective,
+  dataset=training,
+  train_loader=train_loader,
+  val_loader=val_loader
 )
 
-with open (STUDY_PATH + 'hp_study.pkl', 'wb') as f:
-  pickle.dump(study, f)
+lr_study = optuna.create_study(direction='minimize')
+lr_study.optimize(lr_objective, n_trials=20)
+
+with open (STUDY_PATH + 'lr_study.pkl', 'wb') as f:
+  pickle.dump(lr_study, f)
+
+best_lr = lr_study.best_params['lr']
+best_weight_decay = lr_study.best_params['weight_decay']
+best_k = lr_study.best_params['k']
+best_alpha = lr_study.best_params['alpha']
+tft_objective = partial(
+  opt_func.tft_objective,
+  lr=best_lr,
+  weight_decay=best_weight_decay,
+  k=best_k,
+  alpha=best_alpha,
+  train_loader=train_loader,
+  val_loader=val_loader
+)
+
+tft_study = optuna.create_study(direction='minimize')
+tft_study.optimize(tft_objective, n_trials=20)
+
+with open (STUDY_PATH + 'tft_study.pkl', 'wb') as f:
+  pickle.dump(tft_study, f)
