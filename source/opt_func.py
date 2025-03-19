@@ -1,7 +1,7 @@
 import lightning as L
 import torch
 from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
-import torch_optimizer as optim
+import optim
 from lightning.pytorch.callbacks import EarlyStopping
 from pytorch_forecasting.models.temporal_fusion_transformer import TemporalFusionTransformer
 from pytorch_forecasting.metrics import QuantileLoss
