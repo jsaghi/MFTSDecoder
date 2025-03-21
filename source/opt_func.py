@@ -92,7 +92,7 @@ def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
   hidden_size = trial.suggest_categorical('hidden_size', [64, 128, 256])
   hidden_continuous_size = trial.suggest_categorical(
     'hidden_continuous_size', [32, 64, 128])
-  num_attention_heads = trial.suggest_int('num_attention_heads', 2, 8)
+  attention_head_size = trial.suggest_int('attention_head_size', 2, 8)
   dropout = trial.suggest_float('dropout', 0.1, 0.5, step=0.1)
   lstm_layers = trial.suggest_int('lstm_layers', 1, 3)
   
@@ -101,7 +101,7 @@ def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
     hidden_size=hidden_size,
     hidden_continuous_size=hidden_continuous_size,
     lstm_layers=lstm_layers,
-    num_attention_heads=num_attention_heads,
+    attention_head_size=attention_head_size,
     dropout=dropout,
     output_size=OUTPUT_SIZE,
     loss=QuantileLoss(QUANTILES),
