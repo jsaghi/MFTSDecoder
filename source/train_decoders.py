@@ -38,14 +38,6 @@ dict_36x = {
 lf_train_loader, lf_val_loader, _ = data.get_temp(SEQ_LENGTH // LF_LENGTH, False)
 if_train_loader, if_val_loader, _ = data.get_temp(SEQ_LENGTH // IF_LENGTH, False)
 
-# Prepare early stopping callback
-early_stopping = EarlyStopping(
-  monitor='val_loss',
-  min_delta=1e-3,
-  mode='min',
-  patience=3,
-  verbose=True
-  )
 
 # Train all models in the 6x dictionary
 for key, value in dict_6x.items():
@@ -56,6 +48,13 @@ for key, value in dict_6x.items():
     filename=key + '-{epoch}',
     save_top_k=3,
     mode='min',
+    verbose=True
+  )
+  early_stopping = EarlyStopping(
+    monitor='val_loss',
+    min_delta=1e-3,
+    mode='min',
+    patience=3,
     verbose=True
   )
   trainer = L.Trainer(
@@ -75,6 +74,13 @@ for key, value in dict_36x.items():
     filename=key + '-{epoch}',
     save_top_k=3,
     mode='min',
+    verbose=True
+  )
+  early_stopping = EarlyStopping(
+    monitor='val_loss',
+    min_delta=1e-3,
+    mode='min',
+    patience=3,
     verbose=True
   )
   trainer = L.Trainer(
