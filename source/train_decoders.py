@@ -14,7 +14,7 @@ torch.set_float32_matmul_precision('medium')
 
 # Build two dictionaries of models:
 dict_6x = {
-  '6xBase': Expander6XBase(),
+  #'6xBase': Expander6XBase(),
   '6xHalfP': Expander6XHalfP(),
   '6xDoubleP': Expander6XDoubleP(),
   '6xDFE': Expander6XDFE(),
@@ -58,7 +58,7 @@ for key, value in dict_6x.items():
     verbose=True
   )
   trainer = L.Trainer(
-    max_epochs=30,
+    max_epochs=MAX_EPOCHS,
     logger=logger,
     callbacks=[checkpoint, early_stopping],
   )
@@ -84,7 +84,7 @@ for key, value in dict_36x.items():
     verbose=True
   )
   trainer = L.Trainer(
-    max_epochs=30,
+    max_epochs=MAX_EPOCHS,
     logger=logger,
     callbacks=[checkpoint, early_stopping],
   )
