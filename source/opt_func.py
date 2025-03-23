@@ -44,7 +44,7 @@ class LTFTLRTuner(L.LightningModule):
     loss_fn = self.tft.loss
     y_hat = self.tft(x)[0]
     loss = loss_fn(y_hat, y)
-    self.log('val_loss', loss)
+    self.log('val_loss', loss, on_epoch=True)
 
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.tft.parameters(),
