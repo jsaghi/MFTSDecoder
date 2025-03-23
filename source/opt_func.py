@@ -119,4 +119,5 @@ def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
   )
 
   trainer.fit(model, train_loader, val_loader)
+  print(trainer.callback_metrics.get('val_loss', torch.tensor(float('inf'))).item()S)
   return trainer.callback_metrics.get('val_loss', torch.tensor(float('inf'))).item()
