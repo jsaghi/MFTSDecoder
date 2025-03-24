@@ -29,10 +29,13 @@ base_model = TemporalFusionTransformer(
 model = opt_func.LTFTLRTuner(base_model, TFT_LR, WEIGHT_DECAY, K, ALPHA)
   
 # Build trainer and train the model
+logger = CSVLogger(save_dir=HISTORY_PATH + 'tft_tuning')
+early_stopping = EarlyStopping(monitor='val_loss', patience='5', mode='min')
+
 trainer = L.Trainer(
   max_epochs=3,
-  logger=CSVLogger(save_dir=HISTORY_PATH + 'tft_tuning'),
-  callbacks=[EarlyStopping(monitor='val_loss', patience='5', mode='min')]
+  logger=logger,
+  callbacks=[early_stopping]
 )
 
 trainer.fit(model, train_loader, val_loader)
