@@ -33,7 +33,7 @@ class LTFTLRTuner(L.LightningModule):
     # Manual optimization
     self.manual_backward(loss)
     optimizer = self.optimizers()
-    optimizer.step
+    optimizer.step()
     optimizer.zero_grad()
 
     self.log('train_loss', loss)
@@ -44,7 +44,7 @@ class LTFTLRTuner(L.LightningModule):
     loss_fn = self.tft.loss
     y_hat = self.tft(x)[0]
     loss = loss_fn(y_hat, y)
-    self.log('val_loss', loss, on_epoch=True)
+    self.log('val_loss', loss, on_epoch=True, sync_dist=True)
 
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.tft.parameters(),
@@ -113,10 +113,10 @@ def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
   
   # Build trainer and train the model
   trainer = L.Trainer(
-    max_epochs=MAX_EPOCHS,
+    max_epochs=20,
     logger=CSVLogger(save_dir=STUDY_PATH + 'tft_tuning'),
     #callbacks=[EarlyStopping(monitor='val_loss', patience='5', mode='min')]
   )
 
   trainer.fit(model, train_loader, val_loader)
-  return trainer.callback_metrics.get('val_loss', torch.tensor(float('inf'))).item()
+  return trainer.callback_metrics.get('val_loss').item()
