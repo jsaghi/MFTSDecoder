@@ -41,7 +41,7 @@ class LightningTFT(L.LightningModule):
     # Manual optimization
     self.manual_backward(loss)
     optimizer = self.optimizers()
-    optimizer.step
+    optimizer.step()
     optimizer.zero_grad()
 
     self.log('train_loss', loss)
