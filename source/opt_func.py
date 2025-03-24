@@ -115,7 +115,7 @@ def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
   trainer = L.Trainer(
     max_epochs=20,
     logger=CSVLogger(save_dir=STUDY_PATH + 'tft_tuning'),
-    #callbacks=[EarlyStopping(monitor='val_loss', patience='5', mode='min')]
+    callbacks=[EarlyStopping(monitor='val_loss', patience='5', mode='min')]
   )
 
   trainer.fit(model, train_loader, val_loader)
