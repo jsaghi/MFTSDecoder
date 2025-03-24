@@ -37,6 +37,7 @@ class LTFTLRTuner(L.LightningModule):
     optimizer.zero_grad()
 
     self.log('train_loss', loss)
+    print(loss)
     return loss
 
   def validation_step(self, batch, batch_idx):
@@ -45,6 +46,7 @@ class LTFTLRTuner(L.LightningModule):
     y_hat = self.tft(x)[0]
     loss = loss_fn(y_hat, y)
     self.log('val_loss', loss, on_epoch=True, sync_dist=True)
+    print(loss)
 
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.tft.parameters(),
