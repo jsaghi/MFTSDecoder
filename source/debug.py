@@ -2,6 +2,7 @@ import lightning as L
 from settings import *
 import data
 import opt_func
+import tft
 from lightning.pytorch.callbacks import EarlyStopping
 from pytorch_forecasting.models.temporal_fusion_transformer import TemporalFusionTransformer
 from pytorch_forecasting.metrics import QuantileLoss
@@ -13,7 +14,7 @@ torch.set_float32_matmul_precision('medium')
 
 # Build training dataset, train loader, and val loader
 training, train_loader, val_loader, _ = data.get_time_series()
-
+'''
 base_model = TemporalFusionTransformer(
   hidden_size=HIDDEN_SIZE,
   hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
@@ -25,11 +26,12 @@ base_model = TemporalFusionTransformer(
   log_interval=LOG_INTERVAL,
   reduce_on_plateau_patience=PATIENCE
 )
-
+'''
+base_model = tft.build_tft(training)
 model = opt_func.LTFTLRTuner(base_model, TFT_LR, WEIGHT_DECAY, K, ALPHA)
   
 # Build trainer and train the model
-logger = CSVLogger(save_dir=HISTORY_PATH + 'tft_tuning')
+logger = CSVLogger(HISTORY_PATH + 'tft_tuning')
 early_stopping = EarlyStopping(monitor='val_loss', patience='5', mode='min')
 
 trainer = L.Trainer(
@@ -39,3 +41,4 @@ trainer = L.Trainer(
 )
 
 trainer.fit(model, train_loader, val_loader)
+print(trainer.callback_metrics)
