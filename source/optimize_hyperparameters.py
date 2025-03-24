@@ -41,6 +41,7 @@ best_alpha = lr_study.best_params['alpha']
 # TFT hyperparameter study
 tft_objective = partial(
   opt_func.tft_objective,
+  dataset=training,
   lr=TFT_LR,
   weight_decay=WEIGHT_DECAY,
   k=K,
@@ -50,7 +51,7 @@ tft_objective = partial(
 )
 
 tft_study = optuna.create_study(direction='minimize')
-tft_study.optimize(tft_objective, n_trials=50)
+tft_study.optimize(tft_objective, n_trials=30)
 
 # Save the results
 with open (STUDY_PATH + 'tft_trials.pkl', 'wb') as f:
