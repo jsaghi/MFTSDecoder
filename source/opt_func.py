@@ -87,7 +87,7 @@ def lr_objective(trial, dataset, train_loader, val_loader):
 
 
 # Trial to optimize hyperparameters for the tft model
-def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
+def tft_objective(trial, dataset, lr, weight_decay, k, alpha, train_loader, val_loader):
   # Hyperparameters to iterate through
   hidden_size = trial.suggest_categorical('hidden_size', [64, 128, 256])
   hidden_continuous_size = trial.suggest_categorical(
@@ -97,7 +97,8 @@ def tft_objective(trial, lr, weight_decay, k, alpha, train_loader, val_loader):
   lstm_layers = trial.suggest_int('lstm_layers', 1, 3)
   
   # Build model and wrapped model
-  base_model = TemporalFusionTransformer(
+  base_model = TemporalFusionTransformer.from_dataset(
+    dataset=dataset,
     hidden_size=hidden_size,
     hidden_continuous_size=hidden_continuous_size,
     lstm_layers=lstm_layers,
