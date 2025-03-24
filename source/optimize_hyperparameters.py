@@ -51,7 +51,7 @@ tft_objective = partial(
 )
 
 tft_study = optuna.create_study(direction='minimize')
-tft_study.optimize(tft_objective, n_trials=30)
+tft_study.optimize(tft_objective, n_trials=20)
 
 # Save the results
 with open (STUDY_PATH + 'tft_trials.pkl', 'wb') as f:
