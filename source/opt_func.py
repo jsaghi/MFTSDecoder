@@ -114,7 +114,7 @@ def tft_objective(trial, dataset, lr, weight_decay, k, alpha, train_loader, val_
   
   # Build trainer and train the model
   trainer = L.Trainer(
-    max_epochs=20,
+    max_epochs=10,
     logger=CSVLogger(save_dir=STUDY_PATH + 'tft_tuning'),
     callbacks=[EarlyStopping(monitor='val_loss', patience=3, mode='min')]
   )
