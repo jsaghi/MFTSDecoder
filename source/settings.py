@@ -11,16 +11,15 @@ JENA_PATH = '../data/jena_climate_2009_2016.csv'
 MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
-STORAGE_URL = 'sqlite:///optuna_study.db'
 
 # Settings for the TFT Model
-HIDDEN_SIZE = 128
-HIDDEN_CONTINUOUS_SIZE = 64
-LSTM_LAYERS = 2
+HIDDEN_SIZE = 64
+HIDDEN_CONTINUOUS_SIZE = 128
+LSTM_LAYERS = 3
 ATTENTION_HEAD_SIZE = 4
 OUTPUT_SIZE = 3
 QUANTILES = [0.1, 0.5, 0.9]
-DROPOUT = 0.2
+DROPOUT = 0.5
 LOG_INTERVAL = 100
 TFT_OPTIMIZER = 'Ranger'
 PATIENCE = 4
