@@ -72,7 +72,7 @@ def lr_objective(trial, dataset, train_loader, val_loader):
 
   # Build trainer
   trainer = L.Trainer(
-    max_epochs=20,
+    max_epochs=10,
     logger=CSVLogger(save_dir=STUDY_PATH + 'lr_tuning'),
     callbacks=[
       EarlyStopping(monitor='val_loss', patience=3, mode='min'),
