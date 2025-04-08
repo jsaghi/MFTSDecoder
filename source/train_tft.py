@@ -17,11 +17,11 @@ early_stopping = EarlyStopping(
   patience=5,
   verbose=True
   )
-logger = CSVLogger(save_dir=HISTORY_PATH + 'hf_tft')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'hf_tft_2')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='hf_tft' + '-{epoch}',
+    filename='hf_tft_2' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
