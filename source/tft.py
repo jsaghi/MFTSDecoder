@@ -44,7 +44,7 @@ class LightningTFT(L.LightningModule):
     optimizer.step()
     optimizer.zero_grad()
 
-    self.log('train_loss', loss)
+    self.log('train_loss', loss, sync_dist=True)
     return loss
 
   def validation_step(self, batch, batch_idx):
@@ -52,7 +52,7 @@ class LightningTFT(L.LightningModule):
     loss_fn = self.tft_model.loss
     y_hat = self.tft_model(x)[0]
     loss = loss_fn(y_hat, y)
-    self.log('val_loss', loss)
+    self.log('val_loss', loss, sync_dist=True)
 
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.tft_model.parameters(),
