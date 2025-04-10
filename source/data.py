@@ -75,13 +75,13 @@ def train_val_test_split(data):
 # Function to build a pytorch_forecasting TimeSeriesDataSet for the TFT model from an input
 # pre-scaled pandas dataframe of the jena climate data
 def build_time_series(data):
-  training_cutoff = data['time_idx'].max() - DELAY
+  training_cutoff = data['time_idx'].max() - LF_DELAY
   tsds = TimeSeriesDataSet(
   data[lambda x: x.time_idx <= training_cutoff],
   time_idx = 'time_idx',
   target = 'Targets',
-  max_encoder_length = SEQ_LENGTH,
-  max_prediction_length = DELAY,
+  max_encoder_length = LF_LENGTH,
+  max_prediction_length = LF_DELAY,
   time_varying_known_categoricals = ['season'],
   time_varying_known_reals = ['month', 'hour_of_day'],
   time_varying_unknown_reals = [
