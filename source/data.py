@@ -194,7 +194,7 @@ def get_time_series(downsample_ratio = None):
   if downsample_ratio != None:
     jena_downsampled = jena_scaled.iloc[downsample_ratio - 1::downsample_ratio, :]
     jena_downsampled.drop(['time_idx'], axis=1, inplace=True)
-    time_idx = np.arrange(jena_downsampled.shape[0])
+    time_idx = np.arange(jena_downsampled.shape[0])
     jena_downsampled = pd.concat([pd.DataFrame(time_idx, columns=['time_idx']),
                                   jena_downsampled], axis=1
                                   )
