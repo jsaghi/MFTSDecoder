@@ -30,7 +30,7 @@ with open (STUDY_PATH + 'lr_trials_df.pkl', 'wb') as f:
   pickle.dump(lr_study.trials_dataframe(), f)
 with open (STUDY_PATH + 'lr_best_params.pkl', 'wb') as f:
   pickle.dump(lr_study.best_params, f)
-'''
+
 # Extract best learning rate results for the tft hyperparameter study
 best_lr = lr_study.best_params['lr']
 best_weight_decay = lr_study.best_params['weight_decay']
@@ -60,4 +60,3 @@ with open (STUDY_PATH + 'tft_trials_df.pkl', 'wb') as f:
   pickle.dump(tft_study.trials_dataframe(), f)
 with open (STUDY_PATH + 'tft_best_params.pkl', 'wb') as f:
   pickle.dump(tft_study.best_params, f)
-'''
