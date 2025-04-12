@@ -17,4 +17,11 @@ class MFTFT(nn.Module):
         self.tft = tft.build_tft(dataset)
 
     def forward(self, inputs):
-        
+        lf_in, if_in, hf_in, kf_in = inputs
+        kf_cat = kf_in[:, :, ]
+        kf_real = 
+
+        lf_out = self.lf_stack(lf_in)
+        if_out = self.if_stack(if_in)
+        mf_real = torch.cat((kf_real, lf_out, if_out, hf_in), axis=-1)
+
