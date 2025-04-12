@@ -30,13 +30,14 @@ class LFData(Dataset):
     return downsample, raw_tensor
 
 
-# Mixed Frequency dataset class for training combined models
+# Mixed Frequency dataset class for training the MFTFT
 class MFTSData(Dataset):
-  def __init__(self, lf_data, if_data, hf_data, ds_ratio1, ds_ratio2, seq_length, delay):
+  def __init__(self, lf_data, if_data, hf_data, kf_data, ds_ratio1, ds_ratio2, seq_length, delay):
     self.lf_data = lf_data
     self.if_data = if_data
     self.hf_data = hf_data[:, :-1]
     self.targets = hf_data[:, -1]
+    self.kf_data = kf_data
 
     self.ds_ratio1 = ds_ratio1
     self.ds_ratio2 = ds_ratio2
@@ -50,6 +51,7 @@ class MFTSData(Dataset):
     lf_tensor = torch.tensor(self.lf_data[index:index + self.seq_length], dtype=torch.float32)
     if_tensor = torch.tensor(self.if_data[index:index + self.seq_length], dtype=torch.float32)
     hf_tensor = torch.tensor(self.hf_data[index:index + self.seq_length], dtype=torch.float32)
+    kf_tensor = torch.tensor(self.kf_data[index:index + self.seq_length], dtype=torch.float32)
     target = torch.tensor(self.targets[index + self.seq_length + self.delay], dtype=torch.float32)
 
     lf_tensor = lf_tensor[self.ds_ratio1 - 1::self.ds_ratio1, :]
@@ -57,9 +59,9 @@ class MFTSData(Dataset):
 
     lf_tensor.unsqueeze(0)
     if_tensor.unsqueeze(0)
-    hf_tensor.unsqueeze(0)    
+    hf_tensor.unsqueeze(0)  
 
-    return lf_tensor, if_tensor, hf_tensor, target
+    return (lf_tensor, if_tensor, hf_tensor, kf_tensor), target
 
 
 # Helper function that splits given datasets into train, test, and validate subsets
@@ -88,12 +90,12 @@ def build_time_series(data):
       'T (degC)',
       'Tdew (degC)',
       'rh (%)',
+      'sh (g/kg)',
+      'H2OC (mmol/mol)',
       'p (mbar)',
       'VPmax (mbar)',
       'VPact (mbar)',
       'VPdef (mbar)',
-      'sh (g/kg)',
-      'H2OC (mmol/mol)',
       'rho (g/m**3)',
       'wv (m/s)',
       'max wv (m/s)',
@@ -120,6 +122,18 @@ def get_seasons(month):
     return 'summer'
   else:
     return 'fall'
+  
+
+# Helper function to encode seasons to integers
+def encode_seasons(season):
+  if season == 'winter':
+    return 0
+  elif season == 'spring':
+    return 1
+  elif season == 'summer':
+    return 2
+  else:
+    return 3
 
 
 # Function to return normalized values of the jena climate dataset. Right-skewed features
@@ -218,16 +232,19 @@ def get_mfts():
   lf_data = data[['T (degC)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)']].to_numpy()
   if_data = data[['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)']].to_numpy()
   hf_data = data[['rho (g/m**3)', 'wv (m/s)', 'max wv (m/s)', 'wd (deg)', 'Targets']].to_numpy()
+  data['season'] = data['season'].apply(lambda x: (encode_seasons(x)))
+  kf_data = data[['time_idx', 'season', 'month', 'hour_of_day']].to_numpy()
 
   lf_train, lf_val, lf_test = train_val_test_split(lf_data)
   if_train, if_val, if_test = train_val_test_split(if_data)
   hf_train, hf_val, hf_test = train_val_test_split(hf_data)
+  kf_train, kf_val, kf_test = train_val_test_split(kf_data)
 
-  train_ds = MFTSData(lf_train, if_train, hf_train, SEQ_LENGTH // LF_LENGTH,
+  train_ds = MFTSData(lf_train, if_train, hf_train, kf_train, SEQ_LENGTH // LF_LENGTH,
                       SEQ_LENGTH // IF_LENGTH, SEQ_LENGTH, DELAY)
-  val_ds = MFTSData(lf_val, if_val, hf_val, SEQ_LENGTH // LF_LENGTH,
+  val_ds = MFTSData(lf_val, if_val, hf_val, kf_val, SEQ_LENGTH // LF_LENGTH,
                     SEQ_LENGTH // IF_LENGTH, SEQ_LENGTH, DELAY)
-  test_ds = MFTSData(lf_test, if_test, hf_test, SEQ_LENGTH // LF_LENGTH,
+  test_ds = MFTSData(lf_test, if_test, hf_test, kf_test, SEQ_LENGTH // LF_LENGTH,
                      SEQ_LENGTH // IF_LENGTH, SEQ_LENGTH, DELAY)
 
   train_loader = DataLoader(train_ds, batch_size = BATCH_SIZE, shuffle=True)
