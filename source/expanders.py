@@ -86,7 +86,6 @@ class IFExpanderStack(nn.Module):
 
   def forward(self, inputs):
     in_slices = torch.split(inputs, 1, dim=-1)
-    in_slices = torch.transpose()
     out_slices = []
     for i, slice in enumerate(in_slices):
       out_slices.append(self.expander_stack[i](slice.transpose(-1, -2)))
