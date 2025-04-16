@@ -88,6 +88,32 @@ class LightningMFTFT(L.LightningModule):
     self.log('train_loss', loss, sync_dist=True)
     return loss
 
+def validation_step(self, batch, batch_idx):
+    with torch.no_grad():
+        x, y = batch
+        y_hat, _ = self.mftft_model(x)
+
+        # Debug print before computing loss
+        try:
+            loss_fn = self.mftft_model.loss
+
+            # Debug shapes and devices
+            print(f"[Validation] y_hat shape: {y_hat.shape}, dtype: {y_hat.dtype}, device: {y_hat.device}")
+            print(f"[Validation] y shape: {y.shape}, dtype: {y.dtype}, device: {y.device}")
+
+            # Check value ranges for classification
+            if y.dtype == torch.long or y.dtype == torch.int:
+                print(f"[Validation] y min: {y.min().item()}, y max: {y.max().item()}")
+
+            loss = loss_fn(y_hat, y)
+
+            self.log('val_loss', loss, sync_dist=True)
+        except Exception as e:
+            print("⚠️ Validation crashed! Dumping debug info:")
+            print(f"y_hat: {y_hat}")
+            print(f"y: {y}")
+            raise e
+'''
   def validation_step(self, batch, batch_idx):
     with torch.no_grad():
         x, y = batch
@@ -106,3 +132,4 @@ class LightningMFTFT(L.LightningModule):
                        alpha=ALPHA,
                        N_sma_threshhold=5,)
     return optimizer
+'''
