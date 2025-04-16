@@ -91,8 +91,9 @@ class LightningMFTFT(L.LightningModule):
   def validation_step(self, batch, batch_idx):
     x, y = batch
     device = self.device
-    x = x.to(device)
     y = y.to(device)
+    for item in x:
+       item = item.to(device)
 
     with torch.no_grad():
         loss_fn = self.mftft_model.loss
