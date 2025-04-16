@@ -91,7 +91,7 @@ class LightningMFTFT(L.LightningModule):
   def validation_step(self, batch, batch_idx):
     with torch.no_grad():
       x, y = batch
-      y_hat, _ = self.mftft_model(x)
+      y_hat = self.mftft_model(x)[0]
 
       # Debug print before computing loss
       try:
