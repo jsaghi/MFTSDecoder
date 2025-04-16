@@ -15,7 +15,7 @@ class MFTFT(nn.Module):
         self.lf_stack = LFExpanderStack(NUM_LF_INPUTS, MFTFT_SEQ)
         self.if_stack = IFExpanderStack(NUM_IF_INPUTS, MFTFT_SEQ)
         self.tft = tft.build_tft(dataset)
-        self.loss = QuantileLoss([QUANTILES])
+        self.loss = QuantileLoss(QUANTILES)
 
     def forward(self, inputs):
         # Separate inputs
