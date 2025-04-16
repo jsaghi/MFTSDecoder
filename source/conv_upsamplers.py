@@ -15,12 +15,14 @@ class Expander36X(nn.Module):
     self.conv2 = nn.ConvTranspose1d(in_channels=1024, out_channels=512,
                        kernel_size=5, stride=2, padding=2, output_padding=1)
     self.fa1 = FilterAttention(512, out_length // 9)
-    self.ci1 = ConvInsert(out_length // 9, 28)
-    self.conv3 = nn.ConvTranspose1d(in_channels=1, out_channels=2048,
+    self.ci1 = ConvInsert(out_length // 9, 32)
+    self.conv3 = nn.ConvTranspose1d(in_channels=1, out_channels=8,
+                       kernel_size=3, stride=1, padding=0)
+    self.conv4 = nn.ConvTranspose1d(in_channels=8, out_channels=2048,
                        kernel_size=5, stride=2, padding=2, output_padding=1)
-    self.conv4 = nn.ConvTranspose1d(in_channels=2048, out_channels=1024,
+    self.conv5 = nn.ConvTranspose1d(in_channels=2048, out_channels=1024,
                        kernel_size=5, stride=2, padding=2, output_padding=1)
-    self.conv5 = nn.ConvTranspose1d(in_channels=1024, out_channels=512,
+    self.conv6 = nn.ConvTranspose1d(in_channels=1024, out_channels=512,
                        kernel_size=5, stride=2, padding=2, output_padding=1)
     self.fa2 = FilterAttention(512, out_length)
 
@@ -32,6 +34,7 @@ class Expander36X(nn.Module):
     outputs = self.conv3(outputs)
     outputs = self.conv4(outputs)
     outputs = self.conv5(outputs)
+    outputs = self.conv6(outputs)
     outputs = self.fa2(outputs)
     outputs = F.sigmoid(outputs)
     return outputs
@@ -65,9 +68,9 @@ class Expander6X(nn.Module):
 # Class that stacks 5 Expader36X modules, splits inputs along features, feeds
 # each feature through a separate expander, and then stacks the outputs again
 class LFExpanderStack(nn.Module):
-  def __init__(self, num_features):
+  def __init__(self, num_features, out_length):
     super().__init__()
-    self.expander_stack = [Expander36X()] * num_features
+    self.expander_stack = [Expander36X(out_length)] * num_features
 
   def forward(self, inputs):
     in_slices = torch.split(inputs, 1, dim=-1)
@@ -80,9 +83,9 @@ class LFExpanderStack(nn.Module):
 # Class that stacks 4 Expader6X modules, splits inputs along features, feeds
 # each feature through a separate expander, and then stacks the outputs again
 class IFExpanderStack(nn.Module):
-  def __init__(self, num_features):
+  def __init__(self, num_features, out_length):
     super().__init__()
-    self.expander_stack = [Expander6X()] * num_features
+    self.expander_stack = [Expander6X(out_length)] * num_features
 
   def forward(self, inputs):
     in_slices = torch.split(inputs, 1, dim=-1)
