@@ -121,8 +121,9 @@ def validation_step(self, batch, batch_idx):
         y_hat = self.mftft_model(x)[0]
         loss = loss_fn(y_hat, y)
         self.log('val_loss', loss, sync_dist=True)
+'''
 
-  def configure_optimizers(self):
+def configure_optimizers(self):
     optimizer = optim.Ranger(self.mftft_model.parameters(),
                        lr=TFT_LR,
                        weight_decay=WEIGHT_DECAY,
@@ -132,4 +133,3 @@ def validation_step(self, batch, batch_idx):
                        alpha=ALPHA,
                        N_sma_threshhold=5,)
     return optimizer
-'''
