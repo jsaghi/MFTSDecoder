@@ -89,11 +89,12 @@ class LightningMFTFT(L.LightningModule):
     return loss
 
   def validation_step(self, batch, batch_idx):
-    x, y = batch
-    loss_fn = self.mftft_model.loss
-    y_hat = self.mftft_model(x)[0]
-    loss = loss_fn(y_hat, y)
-    self.log('val_loss', loss, sync_dist=True)
+    with torch.no_grad():
+        x, y = batch
+        loss_fn = self.mftft_model.loss
+        y_hat = self.mftft_model(x)[0]
+        loss = loss_fn(y_hat, y)
+        self.log('val_loss', loss, sync_dist=True)
 
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.mftft_model.parameters(),
