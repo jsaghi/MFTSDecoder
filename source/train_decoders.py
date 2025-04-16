@@ -1,6 +1,6 @@
 from settings import *
 import data
-from source.conv_upsamplers import LightningDecoder
+from conv_upsamplers import LightningDecoder
 from expander6x_variants import *
 from expander36x_variants import *
 import lightning as L
