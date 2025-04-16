@@ -1,5 +1,5 @@
 from settings import *
-from source.conv_upsamplers import LFExpanderStack, IFExpanderStack
+from conv_upsamplers import LFExpanderStack, IFExpanderStack
 import tft
 import torch
 import torch.nn as nn
