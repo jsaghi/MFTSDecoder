@@ -4,7 +4,7 @@ import tft
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from pytorch_forecasting import TemporalFusionTransformer, QuantileLoss
+from pytorch_forecasting import QuantileLoss
 import torch_optimizer as optim
 import lightning as L
 
@@ -15,6 +15,7 @@ class MFTFT(nn.Module):
         self.lf_stack = LFExpanderStack(NUM_LF_INPUTS, MFTFT_SEQ)
         self.if_stack = IFExpanderStack(NUM_IF_INPUTS, MFTFT_SEQ)
         self.tft = tft.build_tft(dataset)
+        self.loss = QuantileLoss([QUANTILES])
 
     def forward(self, inputs):
         # Separate inputs
@@ -62,13 +63,13 @@ class MFTFT(nn.Module):
 class LightningMFTFT(L.LightningModule):
   def __init__(self, model):
     super().__init__()
-    self.tft_model = model
+    self.mftft_model = model
     self.automatic_optimization=False
 
   def training_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = self.tft_model.loss
-    y_hat = self.tft_model(x)[0]
+    loss_fn = self.mftft_model.loss
+    y_hat = self.mftft_model(x)[0]
     loss = loss_fn(y_hat, y)
 
     # Manual optimization
@@ -82,13 +83,13 @@ class LightningMFTFT(L.LightningModule):
 
   def validation_step(self, batch, batch_idx):
     x, y = batch
-    loss_fn = self.tft_model.loss
-    y_hat = self.tft_model(x)[0]
+    loss_fn = self.mftft_model.loss
+    y_hat = self.mftft_model(x)[0]
     loss = loss_fn(y_hat, y)
     self.log('val_loss', loss, sync_dist=True)
 
   def configure_optimizers(self):
-    optimizer = optim.Ranger(self.tft_model.parameters(),
+    optimizer = optim.Ranger(self.mftft_model.parameters(),
                        lr=TFT_LR,
                        weight_decay=WEIGHT_DECAY,
                        betas=(BETA1, BETA2),
