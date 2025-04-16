@@ -32,36 +32,32 @@ class LFData(Dataset):
 
 # Mixed Frequency dataset class for training the MFTFT
 class MFTSData(Dataset):
-  def __init__(self, lf_data, if_data, hf_data, kf_data, ds_ratio1, ds_ratio2, seq_length, delay):
+  def __init__(self, lf_data, if_data, hf_data, kf_data):
     self.lf_data = lf_data
     self.if_data = if_data
     self.hf_data = hf_data[:, :-1]
     self.targets = hf_data[:, -1]
     self.kf_data = kf_data
 
-    self.ds_ratio1 = ds_ratio1
-    self.ds_ratio2 = ds_ratio2
-    self.seq_length = seq_length
-    self.delay = delay
+    self.ds_ratio1 = MFTFT_SEQ // MFTFT_LF
+    self.ds_ratio2 = MFTFT_SEQ // MFTFT_IF
+    self.seq_length = MFTFT_SEQ
 
   def __len__(self):
-    return len(self.lf_data) - (self.seq_length + self.delay)
+    return len(self.lf_data) - (self.seq_length)
   
   def __getitem__(self, index):
     lf_tensor = torch.tensor(self.lf_data[index:index + self.seq_length], dtype=torch.float32)
     if_tensor = torch.tensor(self.if_data[index:index + self.seq_length], dtype=torch.float32)
     hf_tensor = torch.tensor(self.hf_data[index:index + self.seq_length], dtype=torch.float32)
-    kf_tensor = torch.tensor(self.kf_data[index:index + self.seq_length], dtype=torch.float32)
-    target = torch.tensor(self.targets[index + self.seq_length + self.delay], dtype=torch.float32)
+    kf_tensor = torch.tensor(self.kf_data[index:index + self.seq_length], dtype=torch.int64)
+    target_tensor = torch.tensor(self.targets[index:index + self.seq_length], dtype=torch.float32)
+    target = torch.tensor(self.targets[index + SEQ_LENGTH:index + self.seq_length], dtype=torch.float32)
 
     lf_tensor = lf_tensor[self.ds_ratio1 - 1::self.ds_ratio1, :]
     if_tensor = if_tensor[self.ds_ratio2 - 1::self.ds_ratio2, :]
-
-    lf_tensor.unsqueeze(0)
-    if_tensor.unsqueeze(0)
-    hf_tensor.unsqueeze(0)  
-
-    return (lf_tensor, if_tensor, hf_tensor, kf_tensor), target
+ 
+    return (lf_tensor, if_tensor, hf_tensor, kf_tensor, target_tensor), target
 
 
 # Helper function that splits given datasets into train, test, and validate subsets
@@ -229,9 +225,12 @@ def get_time_series(downsample_ratio = None):
 def get_mfts():
   data = scale_jena()
   data.drop(['Date Time'], axis=1, inplace=True)
+
+  dataset = build_time_series(data)
+
   lf_data = data[['T (degC)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)']].to_numpy()
   if_data = data[['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)']].to_numpy()
-  hf_data = data[['rho (g/m**3)', 'wv (m/s)', 'max wv (m/s)', 'wd (deg)', 'Targets']].to_numpy()
+  hf_data = data[['rho (g/m**3)', 'wv (m/s)', 'max wv (m/s)', 'wd (deg)', 'Targets']].to_numpy() 
   data['season'] = data['season'].apply(lambda x: (encode_seasons(x)))
   kf_data = data[['time_idx', 'season', 'month', 'hour_of_day']].to_numpy()
 
@@ -240,15 +239,12 @@ def get_mfts():
   hf_train, hf_val, hf_test = train_val_test_split(hf_data)
   kf_train, kf_val, kf_test = train_val_test_split(kf_data)
 
-  train_ds = MFTSData(lf_train, if_train, hf_train, kf_train, SEQ_LENGTH // LF_LENGTH,
-                      SEQ_LENGTH // IF_LENGTH, SEQ_LENGTH, DELAY)
-  val_ds = MFTSData(lf_val, if_val, hf_val, kf_val, SEQ_LENGTH // LF_LENGTH,
-                    SEQ_LENGTH // IF_LENGTH, SEQ_LENGTH, DELAY)
-  test_ds = MFTSData(lf_test, if_test, hf_test, kf_test, SEQ_LENGTH // LF_LENGTH,
-                     SEQ_LENGTH // IF_LENGTH, SEQ_LENGTH, DELAY)
+  train_ds = MFTSData(lf_train, if_train, hf_train, kf_train)
+  val_ds = MFTSData(lf_val, if_val, hf_val, kf_val)
+  test_ds = MFTSData(lf_test, if_test, hf_test, kf_test)
 
   train_loader = DataLoader(train_ds, batch_size = BATCH_SIZE, shuffle=True)
   val_loader = DataLoader(val_ds, batch_size = BATCH_SIZE, shuffle=True)
   test_loader = DataLoader(test_ds, batch_size = BATCH_SIZE, shuffle=True)
 
-  return train_loader, val_loader, test_loader
+  return dataset, train_loader, val_loader, test_loader
