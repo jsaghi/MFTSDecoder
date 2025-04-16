@@ -24,6 +24,9 @@ class MFTFT(nn.Module):
         kf_cat = kf_in[:, :, 1:2]
         kf_real = kf_in[:, :, 2:]
 
+        # Find the device being used
+        device = hf_in.device
+
         # Upsample LF and IF inputs and concatenate them with known future variables and 
         # HF inputs
         lf_out = self.lf_stack(lf_in)
@@ -45,14 +48,18 @@ class MFTFT(nn.Module):
             'encoder_cat': cat_encode,
             'encoder_cont': mf_encode,
             'encoder_target': target_encode,
-            'encoder_lengths': torch.tensor(([SEQ_LENGTH] * BATCH_SIZE), dtype=torch.int64),
+            'encoder_lengths': torch.tensor(([SEQ_LENGTH] * BATCH_SIZE),
+                                            dtype=torch.int64, device=device),
             'decoder_cat': cat_decode,
             'decoder_cont': mf_decode,
             'decoder_target': target_decode,
-            'decoder_lengths': torch.tensor(([DELAY] * BATCH_SIZE), dtype=torch.int64),
+            'decoder_lengths': torch.tensor(([DELAY] * BATCH_SIZE),
+                                            dtype=torch.int64, device=device),
             'decoder_time_idx': time_idx,
-            'groups': torch.tensor(([0] * BATCH_SIZE), dtype=torch.int64).unsqueeze(-1),
-            'target_scale': torch.tensor(([[0, 1]] * BATCH_SIZE), dtype=torch.float32)
+            'groups': torch.tensor(([0] * BATCH_SIZE),
+                                   dtype=torch.int64, device=device).unsqueeze(-1),
+            'target_scale': torch.tensor(([[0, 1]] * BATCH_SIZE),
+                                         dtype=torch.float32, device=device)
         }
 
         outputs=self.tft(tft_in)
