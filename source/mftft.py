@@ -18,13 +18,14 @@ class MFTFT(nn.Module):
         self.loss = QuantileLoss(QUANTILES)
 
     def forward(self, inputs):
-        # Find Batch Size:
-        batch = targets.size(0)
         # Separate inputs
         lf_in, if_in, hf_in, kf_in, targets = inputs
         time_idx = kf_in[:, SEQ_LENGTH:]
         kf_cat = kf_in[:, :, 1:2]
         kf_real = kf_in[:, :, 2:]
+
+        # Find Batch Size:
+        batch = targets.size(0)
 
         # Find the device being used
         device = hf_in.device
