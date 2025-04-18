@@ -36,4 +36,5 @@ trainer = L.Trainer(
     callbacks=[checkpoint, early_stopping]
 )
 
-trainer.fit(lightning_mftft, train, val)
+trainer.validate(lightning_mftft, val)
+#trainer.fit(lightning_mftft, train, val)
