@@ -34,8 +34,6 @@ trainer = L.Trainer(
     max_epochs=50,
     logger=logger,
     callbacks=[checkpoint, early_stopping],
-    accelerator='gpu',
-    devices=1
 )
 
 trainer.validate(lightning_mftft, val)
