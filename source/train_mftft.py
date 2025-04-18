@@ -21,6 +21,7 @@ early_stopping = EarlyStopping(
   patience=5,
   verbose=True
   )
+
 logger = CSVLogger(save_dir=HISTORY_PATH + 'mftft')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
@@ -30,11 +31,11 @@ checkpoint = ModelCheckpoint(
     mode='min',
     verbose=True
   )
+
 trainer = L.Trainer(
     max_epochs=50,
     logger=logger,
     callbacks=[checkpoint, early_stopping],
 )
 
-trainer.validate(lightning_mftft, val)
-#trainer.fit(lightning_mftft, train, val)
+trainer.fit(lightning_mftft, train, val)
