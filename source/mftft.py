@@ -89,23 +89,24 @@ class LightningMFTFT(L.LightningModule):
     return loss
 
   def validation_step(self, batch, batch_idx):
-    x, y = batch
-    device = self.device
-    x = [item.to(device) for item in x]
-    y = y.to(device)
+    try:
+      x, y = batch
+      device = self.device
+      x = [item.to(device) for item in x]
+      y = y.to(device)
 
-    with torch.no_grad():
-        loss_fn = self.mftft_model.loss
-        y_hat = self.mftft_model(x)[0]
-        print(f"[Validation Check] y_hat: {y_hat.shape}, y: {y.shape}")
-        loss = loss_fn(y_hat, y)
-        self.log('val_loss', loss, sync_dist=True)
+      with torch.no_grad():
+          loss_fn = self.mftft_model.loss
+          y_hat = self.mftft_model(x)[0]
+          loss = loss_fn(y_hat, y)
+          self.log('val_loss', loss, sync_dist=True)
 
-    print(f"[Validation Check] y_hat: {y_hat.shape}, y: {y.shape}")
-
-    print("y_hat:", y_hat.shape, y_hat.dtype, y_hat.device)
-    print("y:", y.shape, y.dtype, y.device)
-    assert y_hat.shape[:2] == y.shape[:2], "Mismatch in batch/time dims"
+    except Exception as e:
+      print(f"[Validation ERROR] Batch idx: {batch_idx}")
+      print(f"Shapes - y_hat: {y_hat.shape}, y: {y.shape}")
+      print(f"Types - y_hat: {y_hat.dtype}, y: {y.dtype}")
+      print(f"Devices - y_hat: {y_hat.device}, y: {y.device}")
+      raise e
 
       
   def configure_optimizers(self):
