@@ -44,7 +44,7 @@ class MFTSData(Dataset):
     self.seq_length = MFTFT_SEQ
 
   def __len__(self):
-    return len(self.lf_data) - (self.seq_length)
+    return len(self.lf_data) - self.seq_length
   
   def __getitem__(self, index):
     lf_tensor = torch.tensor(self.lf_data[index:index + self.seq_length], dtype=torch.float32)
@@ -244,7 +244,7 @@ def get_mfts():
   test_ds = MFTSData(lf_test, if_test, hf_test, kf_test)
 
   train_loader = DataLoader(train_ds, batch_size = BATCH_SIZE, shuffle=True, num_workers=5)
-  val_loader = DataLoader(val_ds, batch_size = BATCH_SIZE, shuffle=False, num_workers=5)
+  val_loader = DataLoader(val_ds, batch_size = BATCH_SIZE, shuffle=False, num_workers=5, drop_last=True)
   test_loader = DataLoader(test_ds, batch_size = BATCH_SIZE, shuffle=False, num_workers=5)
 
   return dataset, train_loader, val_loader, test_loader
