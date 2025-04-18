@@ -99,6 +99,16 @@ class LightningMFTFT(L.LightningModule):
         y_hat = self.mftft_model(x)[0]
         loss = loss_fn(y_hat, y)
         self.log('val_loss', loss, sync_dist=True)
+
+    torch.cuda.synchronize()
+    assert not torch.isnan(loss).any(), "Loss is NaN"
+    assert not torch.isinf(loss).any(), "Loss is Inf"
+    print(f"[Validation Check] y_hat: {y_hat.shape}, y: {y.shape}, loss: {loss.item()}")
+
+    print("y_hat:", y_hat.shape, y_hat.dtype, y_hat.device)
+    print("y:", y.shape, y.dtype, y.device)
+    assert y_hat.shape[:2] == y.shape[:2], "Mismatch in batch/time dims"
+
       
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.mftft_model.parameters(),
