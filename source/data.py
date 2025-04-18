@@ -53,6 +53,7 @@ class MFTSData(Dataset):
     kf_tensor = torch.tensor(self.kf_data[index:index + self.seq_length], dtype=torch.int64)
     target_tensor = torch.tensor(self.targets[index:index + self.seq_length], dtype=torch.float32)
     target = torch.tensor(self.targets[index + SEQ_LENGTH:index + self.seq_length], dtype=torch.float32)
+    target = target.unsqueeze(-1).expand(-1, len(QUANTILES))
 
     lf_tensor = lf_tensor[self.ds_ratio1 - 1::self.ds_ratio1, :]
     if_tensor = if_tensor[self.ds_ratio2 - 1::self.ds_ratio2, :]
