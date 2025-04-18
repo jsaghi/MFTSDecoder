@@ -18,6 +18,8 @@ class MFTFT(nn.Module):
         self.loss = QuantileLoss(QUANTILES)
 
     def forward(self, inputs):
+        # Find Batch Size:
+        batch = targets.size(0)
         # Separate inputs
         lf_in, if_in, hf_in, kf_in, targets = inputs
         time_idx = kf_in[:, SEQ_LENGTH:]
@@ -48,17 +50,17 @@ class MFTFT(nn.Module):
             'encoder_cat': cat_encode,
             'encoder_cont': mf_encode,
             'encoder_target': target_encode,
-            'encoder_lengths': torch.tensor(([SEQ_LENGTH] * BATCH_SIZE),
+            'encoder_lengths': torch.tensor(([SEQ_LENGTH] * batch),
                                             dtype=torch.int64, device=device),
             'decoder_cat': cat_decode,
             'decoder_cont': mf_decode,
             'decoder_target': target_decode,
-            'decoder_lengths': torch.tensor(([DELAY] * BATCH_SIZE),
+            'decoder_lengths': torch.tensor(([DELAY] * batch),
                                             dtype=torch.int64, device=device),
             'decoder_time_idx': time_idx,
-            'groups': torch.tensor(([0] * BATCH_SIZE),
+            'groups': torch.tensor(([0] * batch),
                                    dtype=torch.int64, device=device).unsqueeze(-1),
-            'target_scale': torch.tensor(([[0, 1]] * BATCH_SIZE),
+            'target_scale': torch.tensor(([[0, 1]] * batch),
                                          dtype=torch.float32, device=device)
         }
 
@@ -90,10 +92,6 @@ class LightningMFTFT(L.LightningModule):
 
   def validation_step(self, batch, batch_idx):
     x, y = batch
-    #device = self.device
-    #x = [item.to(device) for item in x]
-    #y = y.to(device)
-
     loss_fn = self.mftft_model.loss
     y_hat = self.mftft_model(x)[0]
     loss = loss_fn(y_hat, y)
