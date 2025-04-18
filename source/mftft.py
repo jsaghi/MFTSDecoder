@@ -89,25 +89,15 @@ class LightningMFTFT(L.LightningModule):
     return loss
 
   def validation_step(self, batch, batch_idx):
-    try:
-      x, y = batch
-      device = self.device
-      x = [item.to(device) for item in x]
-      y = y.to(device)
+    x, y = batch
+    #device = self.device
+    #x = [item.to(device) for item in x]
+    #y = y.to(device)
 
-      with torch.no_grad():
-          loss_fn = self.mftft_model.loss
-          y_hat = self.mftft_model(x)[0]
-          loss = loss_fn(y_hat, y)
-          self.log('val_loss', loss, sync_dist=True)
-
-    except Exception as e:
-      print(f"[Validation ERROR] Batch idx: {batch_idx}")
-      print(f"Shapes - y_hat: {y_hat.shape}, y: {y.shape}")
-      print(f"Types - y_hat: {y_hat.dtype}, y: {y.dtype}")
-      print(f"Devices - y_hat: {y_hat.device}, y: {y.device}")
-      raise e
-
+    loss_fn = self.mftft_model.loss
+    y_hat = self.mftft_model(x)[0]
+    loss = loss_fn(y_hat, y)
+    self.log('val_loss', loss, sync_dist=True)
       
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.mftft_model.parameters(),
