@@ -97,7 +97,14 @@ class LightningMFTFT(L.LightningModule):
     y_hat = self.mftft_model(x)[0]
     loss = loss_fn(y_hat, y)
     self.log('val_loss', loss, sync_dist=True)
-      
+
+  def test_step(self, batch, batch_idx):
+    x, y = batch
+    loss_fn = self.mftft_model.loss
+    y_hat = self.mftft_model(x)[0]
+    loss = loss_fn(y_hat, y)
+    self.log('val_loss', loss, sync_dist=True)
+
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.mftft_model.parameters(),
                        lr=TFT_LR,
@@ -108,3 +115,11 @@ class LightningMFTFT(L.LightningModule):
                        alpha=ALPHA,
                        N_sma_threshhold=5,)
     return optimizer
+  
+  @classmethod
+  def load_with_model(cls, checkpoint_path, model_class):
+      model = model_class()
+      wrapper = cls(model)
+      checkpoint = torch.load(checkpoint_path)
+      wrapper.load_state_dict(checkpoint['state_dict'])
+      return wrapper
