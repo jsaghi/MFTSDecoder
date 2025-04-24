@@ -114,7 +114,22 @@ class LightningDecoder(L.LightningModule):
     val_loss = F.mse_loss(y_hat, y)
     self.log('val_loss', val_loss, sync_dist=True)
 
+  def test_step(self, batch, batch_idx):
+    x, y = batch
+    y_hat = self.decoder(x)
+    test_loss = F.mse_loss(y_hat, y)
+    self.log('test_loss', test_loss)
+    return test_loss
+
   def configure_optimizers(self):
     optimizer = torch.optim.Adam(self.decoder.parameters(), lr=LR)
     return optimizer
+  
+  @classmethod
+  def load_with_model(cls, checkpoint_path, model_class):
+      model = model_class()
+      wrapper = cls(model)
+      checkpoint = torch.load(checkpoint_path)
+      wrapper.load_state_dict(checkpoint['state_dict'])
+      return wrapper
   
