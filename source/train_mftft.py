@@ -11,8 +11,12 @@ from lightning.pytorch.loggers import CSVLogger
 torch.set_float32_matmul_precision('high')
 
 time_series, train, val, _ = data.get_mfts()
+'''
 base_mftft = MFTFT(time_series)
 lightning_mftft = LightningMFTFT(base_mftft)
+'''
+
+lightning_mftft = LightningMFTFT.load_with_model(MODEL_PATH + 'mftft-epoch=49.ckpt', MFTFT(time_series))
 
 early_stopping = EarlyStopping(
   monitor='val_loss',
@@ -22,11 +26,11 @@ early_stopping = EarlyStopping(
   verbose=True
   )
 
-logger = CSVLogger(save_dir=HISTORY_PATH + 'mftft')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'mftft2')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='mftft' + '-{epoch}',
+    filename='mftft2' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
