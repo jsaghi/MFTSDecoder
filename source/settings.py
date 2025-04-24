@@ -33,7 +33,7 @@ TFT_OPTIMIZER = 'Ranger'
 PATIENCE = 4
 
 # Settings for the Ranger Optimizer
-TFT_LR = 2e-5
+TFT_LR = 1e-5
 WEIGHT_DECAY = 2e-5
 BETA1 = 0.9
 BETA2 = 0.999
