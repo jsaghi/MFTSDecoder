@@ -18,7 +18,7 @@ lightning_mftft = LightningMFTFT(base_mftft)
 
 lightning_mftft = LightningMFTFT.load_with_model(
   MODEL_PATH + 'mftft-epoch=49.ckpt',
-  MFTFT(),
+  MFTFT,
   time_series
   )
 
