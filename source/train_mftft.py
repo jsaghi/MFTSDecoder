@@ -16,7 +16,11 @@ base_mftft = MFTFT(time_series)
 lightning_mftft = LightningMFTFT(base_mftft)
 '''
 
-lightning_mftft = LightningMFTFT.load_with_model(MODEL_PATH + 'mftft-epoch=49.ckpt', MFTFT(time_series))
+lightning_mftft = LightningMFTFT.load_with_model(
+  MODEL_PATH + 'mftft-epoch=49.ckpt',
+  MFTFT(),
+  time_series
+  )
 
 early_stopping = EarlyStopping(
   monitor='val_loss',
