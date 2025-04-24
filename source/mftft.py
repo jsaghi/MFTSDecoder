@@ -117,8 +117,8 @@ class LightningMFTFT(L.LightningModule):
     return optimizer
   
   @classmethod
-  def load_with_model(cls, checkpoint_path, model_class, *args, **kwargs):
-      model = model_class(*args, **kwargs)
+  def load_with_model(cls, checkpoint_path, model_class, dataset):
+      model = model_class(dataset)
       wrapper = cls(model)
       checkpoint = torch.load(checkpoint_path)
       wrapper.load_state_dict(checkpoint['state_dict'])
