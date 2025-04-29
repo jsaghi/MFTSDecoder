@@ -12,7 +12,7 @@ MFTFT_IF = 192
 NUM_LF_INPUTS = 5
 NUM_IF_INPUTS = 4
 
-LF_DELAY = 12
+LF_DELAY = 4
 LR = 1e-4
 MAX_EPOCHS=30
 JENA_PATH = '../data/jena_climate_2009_2016.csv'
