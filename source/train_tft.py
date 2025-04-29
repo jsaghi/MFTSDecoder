@@ -31,7 +31,7 @@ checkpoint = ModelCheckpoint(
     verbose=True
   )
 trainer = L.Trainer(
-    max_epochs=50,
+    max_epochs=250,
     logger=logger,
     callbacks=[checkpoint, early_stopping]
 )
