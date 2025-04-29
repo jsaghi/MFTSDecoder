@@ -72,14 +72,14 @@ def train_val_test_split(data):
 
 # Function to build a pytorch_forecasting TimeSeriesDataSet for the TFT model from an input
 # pre-scaled pandas dataframe of the jena climate data
-def build_time_series(data):
-  training_cutoff = data['time_idx'].max() - DELAY
+def build_time_series(data, delay=DELAY, seq_length=SEQ_LENGTH):
+  training_cutoff = data['time_idx'].max() - delay
   tsds = TimeSeriesDataSet(
   data[lambda x: x.time_idx <= training_cutoff],
   time_idx = 'time_idx',
   target = 'Targets',
-  max_encoder_length = SEQ_LENGTH,
-  max_prediction_length = DELAY,
+  max_encoder_length = seq_length,
+  max_prediction_length = delay,
   time_varying_known_categoricals = ['season'],
   time_varying_known_reals = ['month', 'hour_of_day'],
   time_varying_unknown_reals = [
@@ -202,17 +202,21 @@ def get_temp(downsample_ratio, scale_targets=True):
 def get_time_series(downsample_ratio = None):
   jena_scaled = scale_jena()
   if downsample_ratio != None:
+    jena_scaled.drop(['time_idx'], axis=1, inplace=True)
     jena_downsampled = jena_scaled.iloc[downsample_ratio - 1::downsample_ratio, :]
-    jena_downsampled.drop(['time_idx'], axis=1, inplace=True)
+    jena_downsampled.reset_index(drop=True, inplace=True)
     time_idx = np.arange(jena_downsampled.shape[0])
-    jena_downsampled = pd.concat([pd.DataFrame(time_idx, columns=['time_idx']),
+    lf_jena = pd.concat([pd.DataFrame(time_idx, columns=['time_idx']),
                                   jena_downsampled], axis=1
                                   )
-    train, val, test = train_val_test_split(jena_downsampled)
+    train, val, test = train_val_test_split(lf_jena)
+    training = build_time_series(train, LF_LENGTH, LF_DELAY)
+    validation = build_time_series(val, LF_LENGTH, LF_DELAY)
+    testing = build_time_series(test, LF_LENGTH, LF_DELAY)
   else:
     train, val, test = train_val_test_split(jena_scaled)
-  training = build_time_series(train)
-  validation = build_time_series(val)
+    training = build_time_series(train)
+    validation = build_time_series(val)
   testing = build_time_series(test)
   train_loader = training.to_dataloader(train=True, batch_size=BATCH_SIZE, num_workers=11)
   val_loader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE, num_workers=11)
