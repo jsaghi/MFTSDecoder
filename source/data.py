@@ -217,7 +217,7 @@ def get_time_series(downsample_ratio = None):
     train, val, test = train_val_test_split(jena_scaled)
     training = build_time_series(train)
     validation = build_time_series(val)
-  testing = build_time_series(test)
+    testing = build_time_series(test)
   train_loader = training.to_dataloader(train=True, batch_size=BATCH_SIZE, num_workers=11)
   val_loader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE, num_workers=11)
   test_loader = testing.to_dataloader(train=False, batch_size=BATCH_SIZE, num_workers=11)
