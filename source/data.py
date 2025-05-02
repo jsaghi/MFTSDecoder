@@ -241,7 +241,7 @@ def get_imputed_ts():
   targets = jena['T (degC)'].rename('Targets')
   imputed_data = pd.read_csv(IMPUTED_DATA_PATH)
   hf_data = jena[['rho (g/m**3)', 'wv (m/s)', 'max. wv (m/s)', 'wd (deg)']]
-  jena_imputed = pd.concat([imputed_data, hf_data])
+  jena_imputed = pd.concat([imputed_data, hf_data], axis=1)
   log_transform = jena_imputed[['VPmax (mbar)',
                         'VPdef (mbar)',
                         'sh (g/kg)',
