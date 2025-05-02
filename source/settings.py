@@ -21,6 +21,13 @@ MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
 
+# Settings for the LSTM prediction model
+NUM_LSTM_LAYERS = 2
+LSTM_INPUT_SIZE = 14
+LSTM_HIDDEN_SIZE = 256
+LSTM_DROPOUT = 0.5
+LSTM_LR = 1e-4
+
 # Settings for the TFT Model
 HIDDEN_SIZE = 64
 HIDDEN_CONTINUOUS_SIZE = 128
