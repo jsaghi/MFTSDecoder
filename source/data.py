@@ -30,6 +30,23 @@ class LFData(Dataset):
     return downsample, raw_tensor
 
 
+# Dataset class for training the LSTM prediction model
+class LSTM_TS(Dataset):
+  def __init__(self, data, seq_length, delay):
+    self.scaled = data.iloc[:, :-1].to_numpy()
+    self.targets = data.iloc[:, -1:].to_numpy()
+    self.seq_length = seq_length
+    self.delay = delay
+
+  def __len__(self):
+    return len(self.targets) - (self.seq_length + self.delay)
+
+  def __getitem__(self, index):
+    x = torch.tensor(self.scaled[index:index + self.seq_length, :], dtype=torch.float32)
+    y = torch.tensor(self.targets[index + self.seq_length:index + self.seq_length + self.delay, :], dtype=torch.float32)
+    return x, y
+
+
 # Mixed Frequency dataset class for training the MFTFT
 class MFTSData(Dataset):
   def __init__(self, lf_data, if_data, hf_data, kf_data):
@@ -194,6 +211,29 @@ def get_temp(downsample_ratio, scale_targets=True):
   val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=5)
   test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=5)
   return train_loader, val_loader, test_loader
+
+
+# Function to return a time series dataset for use with the LSTM prediction model
+def get_lstm_ts(downsample_ratio = None):
+  jena_scaled = scale_jena()
+  jena_scaled.drop(['time_idx', 'Date Time', 'season', 'month', 'hour_of_day'], axis=1, inplace=True)
+  if downsample_ratio != None:   
+    jena_downsampled = jena_scaled.iloc[downsample_ratio - 1::downsample_ratio, :]
+    jena_downsampled.reset_index(drop=True, inplace=True)
+
+    train, val, test = train_val_test_split(jena_downsampled)
+    training = LSTM_TS(train, LF_LENGTH, LF_DELAY)
+    validation = LSTM_TS(val, LF_LENGTH, LF_DELAY)
+    testing = LSTM_TS(test, LF_LENGTH, LF_DELAY)
+  else:
+    train, val, test = train_val_test_split(jena_scaled)
+    training = LSTM_TS(train, SEQ_LENGTH, DELAY)
+    validation = LSTM_TS(val, SEQ_LENGTH, DELAY)
+    testing = LSTM_TS(test, SEQ_LENGTH, DELAY)
+  train_loader = DataLoader(training, batch_size=BATCH_SIZE, shuffle=True, num_workers=11)
+  val_loader = DataLoader(validation, batch_size=BATCH_SIZE, shuffle=False, num_workers=11)
+  test_loader = DataLoader(testing, batch_size=BATCH_SIZE, shuffle=False, num_workers=11)
+  return (train_loader, val_loader, test_loader)
 
 
 # Function that returns a time series dataset for the jena climate dataset. Returns
