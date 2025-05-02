@@ -224,6 +224,51 @@ def get_time_series(downsample_ratio = None):
   return (training, train_loader, val_loader, test_loader)
 
 
+# Function to build a timeseries from imputed data proccessed using MIDASpy
+def get_imputed_ts():
+  scaler = MinMaxScaler()
+  jena = pd.read_csv(JENA_PATH)
+  jena.drop(['Tpot (K)'], axis=1, inplace=True)
+  jena['Date Time'] = pd.to_datetime(jena['Date Time'], format='%d.%m.%Y %H:%M:%S')
+  group_id = pd.DataFrame(np.zeros(jena.shape[0], dtype=np.int32), columns=['group_id'])
+  jena['season'] = jena['Date Time'].dt.month.apply(get_seasons)
+  jena['month'] = jena['Date Time'].dt.month.astype(int)
+  jena['hour_of_day'] = jena['Date Time'].dt.hour.astype(int)
+  time_idx = np.arange(jena.shape[0])
+  unscaled = pd.concat([pd.DataFrame(time_idx, columns=['time_idx']),
+                      jena[['Date Time', 'season', 'month', 'hour_of_day']],
+                      group_id], axis=1)
+  targets = jena['T (degC)'].rename('Targets')
+  imputed_data = pd.read_csv(IMPUTED_DATA_PATH)
+  hf_data = jena[['rho (g/m**3)', 'wv (m/s)', 'max wv (m/s)', 'wd (deg)', 'Targets']]
+  jena_imputed = pd.concat([imputed_data, hf_data])
+  log_transform = jena_imputed[['VPmax (mbar)',
+                        'VPdef (mbar)',
+                        'sh (g/kg)',
+                        'H2OC (mmol/mol)',
+                        'wv (m/s)',
+                        'max. wv (m/s)']].apply(lambda x: np.log(x + 1))
+  jena_imputed.drop(['VPmax (mbar)',
+             'VPdef (mbar)',
+             'sh (g/kg)',
+             'H2OC (mmol/mol)',
+             'wv (m/s)',
+             'max. wv (m/s)'], axis=1, inplace=True)
+  
+  scaled_data = pd.concat([log_transform, jena_imputed], axis=1)
+  scaled_df = pd.DataFrame(scaler.fit_transform(scaled_data), columns=scaled_data.columns)
+  jena_scaled = pd.concat([unscaled, scaled_df, targets], axis=1)
+  jena_scaled.rename(columns={'max. wv (m/s)': 'max wv (m/s)'}, inplace=True)
+  train, val, test = train_val_test_split(jena_scaled)
+  training = build_time_series(train)
+  validation = build_time_series(val)
+  testing = build_time_series(test)
+  train_loader = training.to_dataloader(train=True, batch_size=BATCH_SIZE, num_workers=11)
+  val_loader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE, num_workers=11)
+  test_loader = testing.to_dataloader(train=False, batch_size=BATCH_SIZE, num_workers=11)
+  return (training, train_loader, val_loader, test_loader)
+
+
 # Function that returns train, validation, and test dataloaders for mixed frequency multivariate
 # time series. This is the data pipline to train and test the combined prediction models
 def get_mfts():
