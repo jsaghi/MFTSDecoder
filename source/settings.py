@@ -16,6 +16,7 @@ LF_DELAY = 4
 LR = 1e-4
 MAX_EPOCHS=30
 JENA_PATH = '../data/jena_climate_2009_2016.csv'
+IMPUTED_DATA_PATH = '../data/imputed_data.csv'
 MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
