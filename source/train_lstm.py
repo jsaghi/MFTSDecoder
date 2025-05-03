@@ -8,7 +8,7 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from lightning.pytorch.loggers import CSVLogger
 
 
-train, val, _ = data.get_lstm_ts()
+train, val, _ = data.get_lstm_ts(36)
 base_lstm = LSTM_Predict(DELAY)
 lightning_lstm = LightningLSTM(base_lstm)
 
@@ -19,11 +19,11 @@ early_stopping = EarlyStopping(
   patience=5,
   verbose=True
   )
-logger = CSVLogger(save_dir=HISTORY_PATH + 'hf_lstm')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'lf_lstm')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='hf_lstm' + '-{epoch}',
+    filename='lf_lstm' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
