@@ -216,7 +216,7 @@ def get_temp(downsample_ratio, scale_targets=True):
 # Function to return a time series dataset for use with the LSTM prediction model
 def get_lstm_ts(downsample_ratio = None):
   jena_scaled = scale_jena()
-  jena_scaled.drop(['time_idx', 'Date Time', 'season', 'month', 'hour_of_day'], axis=1, inplace=True)
+  jena_scaled.drop(['time_idx', 'Date Time', 'season', 'month', 'hour_of_day', 'group_id'], axis=1, inplace=True)
   if downsample_ratio != None:   
     jena_downsampled = jena_scaled.iloc[downsample_ratio - 1::downsample_ratio, :]
     jena_downsampled.reset_index(drop=True, inplace=True)
@@ -244,7 +244,8 @@ def get_lstm_ts_imputed():
   jena = pd.read_csv(JENA_PATH)
   jena.drop(['Tpot (K)'], axis=1, inplace=True)
   targets = jena['T (degC)'].rename('Targets')
-  imputed_data = pd.read_csv(IMPUTED_DATA_PATH)
+  imputed_raw = pd.read_csv(IMPUTED_DATA_PATH)
+  imputed_data = imputed_raw.iloc[:, 1:]
   hf_data = jena[['rho (g/m**3)', 'wv (m/s)', 'max. wv (m/s)', 'wd (deg)']]
   jena_imputed = pd.concat([imputed_data, hf_data], axis=1)
   log_transform = jena_imputed[['VPmax (mbar)',
