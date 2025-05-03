@@ -236,6 +236,44 @@ def get_lstm_ts(downsample_ratio = None):
   return (train_loader, val_loader, test_loader)
 
 
+
+# Function to return a time series dataset for use with the LSTM prediction model using
+# the imputed data
+def get_lstm_ts_imputed():
+  scaler = MinMaxScaler()
+  jena = pd.read_csv(JENA_PATH)
+  jena.drop(['Tpot (K)'], axis=1, inplace=True)
+  targets = jena['T (degC)'].rename('Targets')
+  imputed_data = pd.read_csv(IMPUTED_DATA_PATH)
+  hf_data = jena[['rho (g/m**3)', 'wv (m/s)', 'max. wv (m/s)', 'wd (deg)']]
+  jena_imputed = pd.concat([imputed_data, hf_data], axis=1)
+  log_transform = jena_imputed[['VPmax (mbar)',
+                        'VPdef (mbar)',
+                        'sh (g/kg)',
+                        'H2OC (mmol/mol)',
+                        'wv (m/s)',
+                        'max. wv (m/s)']].apply(lambda x: np.log(x + 1))
+  jena_imputed.drop(['VPmax (mbar)',
+             'VPdef (mbar)',
+             'sh (g/kg)',
+             'H2OC (mmol/mol)',
+             'wv (m/s)',
+             'max. wv (m/s)'], axis=1, inplace=True)
+  
+  scaled_data = pd.concat([log_transform, jena_imputed], axis=1)
+  scaled_df = pd.DataFrame(scaler.fit_transform(scaled_data), columns=scaled_data.columns)
+  jena_scaled = pd.concat([scaled_df, targets], axis=1)
+  jena_scaled.rename(columns={'max. wv (m/s)': 'max wv (m/s)'}, inplace=True)
+  train, val, test = train_val_test_split(jena_scaled)
+  training = LSTM_TS(train, SEQ_LENGTH, DELAY)
+  validation = LSTM_TS(val, SEQ_LENGTH, DELAY)
+  testing = LSTM_TS(test, SEQ_LENGTH, DELAY)
+  train_loader = DataLoader(training, batch_size=BATCH_SIZE, shuffle=True, num_workers=11)
+  val_loader = DataLoader(validation, batch_size=BATCH_SIZE, shuffle=False, num_workers=11)
+  test_loader = DataLoader(testing, batch_size=BATCH_SIZE, shuffle=False, num_workers=11)
+  return (train_loader, val_loader, test_loader)
+
+
 # Function that returns a time series dataset for the jena climate dataset. Returns
 # a dataloader for train, validation, and test datasets. Used to train prediction models without
 # attached decoders
