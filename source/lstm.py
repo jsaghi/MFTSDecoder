@@ -133,7 +133,7 @@ class Expander36X(nn.Module):
 class LFExpanderStack(nn.Module):
   def __init__(self, num_features, out_length):
     super().__init__()
-    self.expander_stack = nn.ModuleList([Expander36X(out_length) for _ in range(num_features)])
+    self.expander_stack = nn.ModuleList([Expander36X() for _ in range(num_features)])
 
   def forward(self, inputs):
     in_slices = torch.split(inputs, 1, dim=-1)
@@ -148,7 +148,7 @@ class LFExpanderStack(nn.Module):
 class IFExpanderStack(nn.Module):
   def __init__(self, num_features, out_length):
     super().__init__()
-    self.expander_stack = nn.ModuleList([Expander6X(out_length) for _ in range(num_features)])
+    self.expander_stack = nn.ModuleList([Expander6X() for _ in range(num_features)])
 
   def forward(self, inputs):
     in_slices = torch.split(inputs, 1, dim=-1)
