@@ -1,6 +1,6 @@
 from settings import *
 import data
-from lstm import LSTM_Predict, LightningLSTM
+from lstm import LSTM_Predict, MFLSTM, LightningLSTM
 import torch
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
@@ -8,8 +8,8 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from lightning.pytorch.loggers import CSVLogger
 
 
-train, val, _ = data.get_lstm_ts()
-base_lstm = LSTM_Predict(DELAY)
+_, train, val, _ = data.get_mfts()
+base_lstm = MFLSTM(DELAY)
 lightning_lstm = LightningLSTM(base_lstm)
 
 early_stopping = EarlyStopping(
