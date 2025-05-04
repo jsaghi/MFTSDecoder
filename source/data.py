@@ -56,9 +56,9 @@ class MFTSData(Dataset):
     self.targets = hf_data[:, -1]
     self.kf_data = kf_data
 
-    self.ds_ratio1 = SEQ_LENGTH // LF_LENGTH
-    self.ds_ratio2 = SEQ_LENGTH // IF_LENGTH
-    self.seq_length = SEQ_LENGTH
+    self.ds_ratio1 = MFTFT_SEQ // MFTFT_LF
+    self.ds_ratio2 = MFTFT_SEQ // MFTFT_IF
+    self.seq_length = MFTFT_SEQ
 
   def __len__(self):
     return len(self.lf_data) - self.seq_length
@@ -75,6 +75,35 @@ class MFTSData(Dataset):
     if_tensor = if_tensor[self.ds_ratio2 - 1::self.ds_ratio2, :]
  
     return (lf_tensor, if_tensor, hf_tensor, kf_tensor, target_tensor), target
+  
+
+# Dataset class for training the MF_LSTM model. Unlike the MFTFT, the MF_LSTM
+# doesn't use future values during training, so the sequence length of data
+# includes only the historical window, not the historical window + prediction horizon
+class MF_LSTM(Dataset):
+  def __init__(self, lf_data, if_data, hf_data):
+    self.lf_data = lf_data
+    self.if_data = if_data
+    self.hf_data = hf_data[:, :-1]
+    self.targets = hf_data[:, -1]
+
+    self.ds_ratio1 = SEQ_LENGTH // LF_LENGTH
+    self.ds_ratio2 = SEQ_LENGTH // IF_LENGTH
+    self.seq_length = SEQ_LENGTH
+
+  def __len__(self):
+    return len(self.lf_data) - (self.seq_length + DELAY)
+  
+  def __getitem__(self, index):
+    lf_tensor = torch.tensor(self.lf_data[index:index + self.seq_length], dtype=torch.float32)
+    if_tensor = torch.tensor(self.if_data[index:index + self.seq_length], dtype=torch.float32)
+    hf_tensor = torch.tensor(self.hf_data[index:index + self.seq_length], dtype=torch.float32)
+    target = torch.tensor(self.targets[index + self.seq_length:index + self.seq_length + DELAY], dtype=torch.float32)
+
+    lf_tensor = lf_tensor[self.ds_ratio1 - 1::self.ds_ratio1, :]
+    if_tensor = if_tensor[self.ds_ratio2 - 1::self.ds_ratio2, :]
+ 
+    return (lf_tensor, if_tensor, hf_tensor), target
 
 
 # Helper function that splits given datasets into train, test, and validate subsets
@@ -376,3 +405,28 @@ def get_mfts():
   test_loader = DataLoader(test_ds, batch_size = BATCH_SIZE, shuffle=False, num_workers=5)
 
   return dataset, train_loader, val_loader, test_loader
+
+
+# Function that returns train, validation, and test dataloaders for mixed frequency multivariate
+# time series. This is the data pipline to train and test the combined prediction models
+def get_mf_lstm_data():
+  data = scale_jena()
+  data.drop(['Date Time'], axis=1, inplace=True)
+
+  lf_data = data[['T (degC)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)']].to_numpy()
+  if_data = data[['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)']].to_numpy()
+  hf_data = data[['rho (g/m**3)', 'wv (m/s)', 'max wv (m/s)', 'wd (deg)', 'Targets']].to_numpy() 
+
+  lf_train, lf_val, lf_test = train_val_test_split(lf_data)
+  if_train, if_val, if_test = train_val_test_split(if_data)
+  hf_train, hf_val, hf_test = train_val_test_split(hf_data)
+
+  train_ds = MF_LSTM(lf_train, if_train, hf_train)
+  val_ds = MF_LSTM(lf_val, if_val, hf_val)
+  test_ds = MF_LSTM(lf_test, if_test, hf_test)
+
+  train_loader = DataLoader(train_ds, batch_size = BATCH_SIZE, shuffle=True, num_workers=5)
+  val_loader = DataLoader(val_ds, batch_size = BATCH_SIZE, shuffle=False, num_workers=5)
+  test_loader = DataLoader(test_ds, batch_size = BATCH_SIZE, shuffle=False, num_workers=5)
+
+  return train_loader, val_loader, test_loader
