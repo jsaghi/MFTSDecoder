@@ -56,9 +56,9 @@ class MFTSData(Dataset):
     self.targets = hf_data[:, -1]
     self.kf_data = kf_data
 
-    self.ds_ratio1 = MFTFT_SEQ // MFTFT_LF
-    self.ds_ratio2 = MFTFT_SEQ // MFTFT_IF
-    self.seq_length = MFTFT_SEQ
+    self.ds_ratio1 = SEQ_LENGTH // LF_LENGTH
+    self.ds_ratio2 = SEQ_LENGTH // IF_LENGTH
+    self.seq_length = SEQ_LENGTH
 
   def __len__(self):
     return len(self.lf_data) - self.seq_length
