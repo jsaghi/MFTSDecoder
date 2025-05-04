@@ -8,7 +8,10 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from lightning.pytorch.loggers import CSVLogger
 
 
-_, train, val, _ = data.get_mfts()
+# Set torch.matmul precision
+torch.set_float32_matmul_precision('high')
+
+train, val, _ = data.get_mf_lstm_data()
 base_lstm = MFLSTM()
 lightning_lstm = LightningLSTM(base_lstm)
 
