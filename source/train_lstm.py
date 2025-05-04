@@ -9,7 +9,7 @@ from lightning.pytorch.loggers import CSVLogger
 
 
 _, train, val, _ = data.get_mfts()
-base_lstm = MFLSTM(DELAY)
+base_lstm = MFLSTM()
 lightning_lstm = LightningLSTM(base_lstm)
 
 early_stopping = EarlyStopping(
