@@ -169,7 +169,7 @@ class MFLSTM(nn.Module):
 
     def forward(self, inputs):
         # Separate inputs
-        lf_in, if_in, hf_in, _, targets = inputs
+        lf_in, if_in, hf_in = inputs
 
         # Upsample LF and IF inputs and concatenate them with known future variables and 
         # HF inputs
