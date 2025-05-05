@@ -41,7 +41,7 @@ class LSTM_Predict(nn.Module):
 class LightningLSTM(L.LightningModule):
   def __init__(self, model):
     super().__init__()
-    self.save_hyperparameters()
+    #self.save_hyperparameters()
     self.model = model
     self.loss = nn.MSELoss()
 
