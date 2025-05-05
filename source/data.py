@@ -98,7 +98,9 @@ class MF_LSTM(Dataset):
     lf_tensor = torch.tensor(self.lf_data[index:index + self.seq_length], dtype=torch.float32)
     if_tensor = torch.tensor(self.if_data[index:index + self.seq_length], dtype=torch.float32)
     hf_tensor = torch.tensor(self.hf_data[index:index + self.seq_length], dtype=torch.float32)
-    target = torch.tensor(self.targets[index + self.seq_length:index + self.seq_length + DELAY], dtype=torch.float32)
+    target = torch.tensor(
+      self.targets[index + self.seq_length:index + self.seq_length + DELAY], dtype=torch.float32
+      ).unsqueeze(-1)
 
     lf_tensor = lf_tensor[self.ds_ratio1 - 1::self.ds_ratio1, :]
     if_tensor = if_tensor[self.ds_ratio2 - 1::self.ds_ratio2, :]
