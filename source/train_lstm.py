@@ -22,11 +22,11 @@ early_stopping = EarlyStopping(
   patience=5,
   verbose=True
   )
-logger = CSVLogger(save_dir=HISTORY_PATH + 'lf_lstm')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'lf_lstm3')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='lf_lstm' + '-{epoch}',
+    filename='lf_lstm3' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
