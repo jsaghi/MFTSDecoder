@@ -10,7 +10,7 @@ from lightning.pytorch.loggers import CSVLogger
 # Set torch.matmul precision
 torch.set_float32_matmul_precision('high')
 
-training, train, val, _ = data.get_imputed_ts()
+training, train, val, _ = data.get_time_series()
 base_tft = tft.build_tft(training)
 lightning_tft = tft.LightningTFT(base_tft)
 
@@ -21,11 +21,11 @@ early_stopping = EarlyStopping(
   patience=5,
   verbose=True
   )
-logger = CSVLogger(save_dir=HISTORY_PATH + 'midas_tft')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'hf_tft2')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='midas_tft' + '-{epoch}',
+    filename='hf_tft2' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
