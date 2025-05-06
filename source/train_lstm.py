@@ -11,8 +11,8 @@ from lightning.pytorch.loggers import CSVLogger
 # Set torch.matmul precision
 torch.set_float32_matmul_precision('high')
 
-train, val, _ = data.get_mf_lstm_data()
-base_lstm = MFLSTM()
+train, val, _ = data.get_lstm_ts(36)
+base_lstm = LSTM_Predict(LF_DELAY)
 lightning_lstm = LightningLSTM(base_lstm)
 
 early_stopping = EarlyStopping(
@@ -22,11 +22,11 @@ early_stopping = EarlyStopping(
   patience=5,
   verbose=True
   )
-logger = CSVLogger(save_dir=HISTORY_PATH + 'mf_lstm')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'lf_lstm')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='mf_lstm' + '-{epoch}',
+    filename='lf_lstm' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
