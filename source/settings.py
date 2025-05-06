@@ -22,7 +22,7 @@ HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
 
 # Settings for the LSTM prediction model
-NUM_LSTM_LAYERS = 3
+NUM_LSTM_LAYERS = 2
 LSTM_INPUT_SIZE = 13
 LSTM_HIDDEN_SIZE = 256
 LSTM_DROPOUT = 0.5
@@ -41,7 +41,7 @@ TFT_OPTIMIZER = 'Ranger'
 PATIENCE = 4
 
 # Settings for the Ranger Optimizer
-TFT_LR = 1e-5
+TFT_LR = 2e-5
 WEIGHT_DECAY = 2e-5
 BETA1 = 0.9
 BETA2 = 0.999
