@@ -22,7 +22,7 @@ HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
 
 # Settings for the LSTM prediction model
-NUM_LSTM_LAYERS = 2
+NUM_LSTM_LAYERS = 3
 LSTM_INPUT_SIZE = 13
 LSTM_HIDDEN_SIZE = 256
 LSTM_DROPOUT = 0.5
