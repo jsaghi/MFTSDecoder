@@ -76,8 +76,10 @@ class LightningMFTFT(L.LightningModule):
     super().__init__()
     self.mftft_model = model
     self.automatic_optimization=False
-    self.mae = MeanAbsoluteError()
-    self.mse = MeanSquaredError()
+    self.logging_metrics = {
+       'mae' : MeanAbsoluteError(),
+       'mse' : MeanSquaredError(),
+    }
 
   def training_step(self, batch, batch_idx):
     x, y = batch
@@ -101,27 +103,38 @@ class LightningMFTFT(L.LightningModule):
     loss = loss_fn(y_hat, y)
     self.log('val_loss', loss, sync_dist=True)
 
+  def on_test_epoch_start(self):
+    self.test_outputs = []
+
   def test_step(self, batch, batch_idx):
-    output = self.model(batch)
-    y_hat = output['prediction']
-    y = batch[0]['target']
+    x, y = batch
+    loss_fn = self.mftft_model.loss
+    y_hat = self.mftft_model(x)[0]
 
-    # Select 0.5 quantile (median)
-    median_idx = self.model.quantiles.index(0.5)
-    y_hat_median = y_hat[..., median_idx]
+    loss = loss_fn(y_hat, y)
 
-    self.mae.update(y_hat_median.flatten(), y.flatten())
-    self.mse.update(y_hat_median.flatten(), y.flatten())
+    # Use median quantile for point estimate
+    y_median = y_hat[:, :, 1]
 
-    return {'y': y, 'y_hat': y_hat_median}
+    mae = self.logging_metrics['mae'](y_median, y)
+    mse = self.logging_metrics['mse'](y_median, y)
 
-  def test_epoch_end(self, outputs):
-    mae = self.mae.compute()
-    mse = self.mse.compute()
-    self.log('test_mae', mae)
-    self.log('test_mse', mse)
-    self.mae.reset()
-    self.mse.reset()
+    self.test_outputs.append({
+      'loss': loss.detach(),
+      'mae': mae.detach(),
+      'mse': mse.detach()
+    })
+
+    return {'loss': loss, 'mae': mae, 'mse': mse}
+
+  def on_test_epoch_end(self):
+    avg_loss = torch.stack([x['loss'] for x in self.test_outputs]).mean()
+    avg_mae = torch.stack([x['mae'] for x in self.test_outputs]).mean()
+    avg_mse = torch.stack([x['mse'] for x in self.test_outputs]).mean()
+
+    self.log('test_loss', avg_loss)
+    self.log('mae_loss', avg_mae)
+    self.log('mse_loss', avg_mse)
 
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.mftft_model.parameters(),
