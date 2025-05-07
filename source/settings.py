@@ -20,6 +20,7 @@ IMPUTED_DATA_PATH = '../data/imputed_data.csv'
 MODEL_PATH = '../models/'
 HISTORY_PATH = '../history/'
 STUDY_PATH = '../studies/'
+EVAL_PATH = '../eval_results/'
 
 # Settings for the LSTM prediction model
 NUM_LSTM_LAYERS = 2
