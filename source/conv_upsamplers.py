@@ -100,6 +100,7 @@ class LightningDecoder(L.LightningModule):
   def __init__(self, model):
     super().__init__()
     self.decoder=model
+    self.mae_loss = nn.L1Loss()
 
   def training_step(self, batch, batch_idx):
     x, y = batch
@@ -118,8 +119,10 @@ class LightningDecoder(L.LightningModule):
     x, y = batch
     y_hat = self.decoder(x)
     test_loss = F.mse_loss(y_hat, y)
+    mae = self.mae_loss(y_hat, y)
     self.log('test_loss', test_loss)
-    return test_loss
+    self.log('mae_loss', mae)
+    return test_loss, mae
 
   def configure_optimizers(self):
     optimizer = torch.optim.Adam(self.decoder.parameters(), lr=LR)
