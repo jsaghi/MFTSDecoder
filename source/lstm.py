@@ -77,14 +77,21 @@ class LightningLSTM(L.LightningModule):
   
   @classmethod
   def load_with_model(cls, checkpoint_path, mf=False, delay=None):
-      if not mf:
-        model = LSTM_Predict(delay)
-      else:
-        model = MFLSTM()
-      wrapper = cls(model)
-      checkpoint = torch.load(checkpoint_path)
-      wrapper.load_state_dict(checkpoint['state_dict'])
-      return wrapper
+    if not mf:
+      model = LSTM_Predict(delay)
+    else:
+      model = MFLSTM()
+    wrapper = cls(model)
+    # Allow trusted classes to be deserialized
+    torch.serialization.add_safe_globals({
+        'LSTM_Predict': LSTM_Predict,
+        'MFLSTM': MFLSTM
+    })
+
+    # Explicitly set weights_only=False to load the full checkpoint
+    checkpoint = torch.load(checkpoint_path, weights_only=False)
+    wrapper.load_state_dict(checkpoint['state_dict'])
+    return wrapper
   
 
 # Decoder class to expand by a ratio of 6 to 1
