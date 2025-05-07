@@ -1,7 +1,9 @@
 from settings import *
 import torch
+import torch.nn as nn
 from pytorch_forecasting import TemporalFusionTransformer, QuantileLoss
 import torch_optimizer as optim
+from torchmetrics import MeanAbsoluteError, MeanSquaredError
 import lightning as L
 
 
@@ -31,6 +33,8 @@ class LightningTFT(L.LightningModule):
     super().__init__()
     self.tft_model = model
     self.automatic_optimization=False
+    self.mae = MeanAbsoluteError()
+    self.mse = MeanSquaredError()
 
   def training_step(self, batch, batch_idx):
     x, y = batch
@@ -54,6 +58,28 @@ class LightningTFT(L.LightningModule):
     loss = loss_fn(y_hat, y)
     self.log('val_loss', loss, sync_dist=True)
 
+  def test_step(self, batch, batch_idx):
+    output = self.model(batch)
+    y_hat = output['prediction']
+    y = batch[0]['target']
+
+    # Select 0.5 quantile (median)
+    median_idx = self.model.quantiles.index(0.5)
+    y_hat_median = y_hat[..., median_idx]
+
+    self.mae.update(y_hat_median.flatten(), y.flatten())
+    self.mse.update(y_hat_median.flatten(), y.flatten())
+
+    return {'y': y, 'y_hat': y_hat_median}
+
+  def test_epoch_end(self, outputs):
+    mae = self.mae.compute()
+    mse = self.mse.compute()
+    self.log('test_mae', mae)
+    self.log('test_mse', mse)
+    self.mae.reset()
+    self.mse.reset()
+
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.tft_model.parameters(),
                        lr=TFT_LR,
@@ -64,3 +90,12 @@ class LightningTFT(L.LightningModule):
                        alpha=ALPHA,
                        N_sma_threshhold=5,)
     return optimizer
+
+  @classmethod
+  def load_with_model(cls, checkpoint_path, dataset):
+      model = build_tft(dataset)
+      wrapper = cls(model)
+      checkpoint = torch.load(checkpoint_path)
+      wrapper.load_state_dict(checkpoint['state_dict'])
+      return wrapper
+  
