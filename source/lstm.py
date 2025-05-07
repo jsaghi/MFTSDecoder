@@ -65,8 +65,8 @@ class LightningLSTM(L.LightningModule):
   
   def test_step(self, batch, batch_idx):
     x, y = batch
-    y_hat = self.decoder(x)
-    test_loss = F.mse_loss(y_hat, y)
+    y_hat = self.model(x)
+    test_loss = self.loss(y_hat, y)
     mae = self.mae_loss(y_hat, y)
     self.log('test_loss', test_loss)
     self.log('mae_loss', mae)
