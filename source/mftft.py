@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_forecasting import QuantileLoss
 import torch_optimizer as optim
+from torchmetrics import MeanAbsoluteError, MeanSquaredError
 import lightning as L
 
 
@@ -75,6 +76,8 @@ class LightningMFTFT(L.LightningModule):
     super().__init__()
     self.mftft_model = model
     self.automatic_optimization=False
+    self.mae = MeanAbsoluteError()
+    self.mse = MeanSquaredError()
 
   def training_step(self, batch, batch_idx):
     x, y = batch
@@ -99,11 +102,26 @@ class LightningMFTFT(L.LightningModule):
     self.log('val_loss', loss, sync_dist=True)
 
   def test_step(self, batch, batch_idx):
-    x, y = batch
-    loss_fn = self.mftft_model.loss
-    y_hat = self.mftft_model(x)[0]
-    loss = loss_fn(y_hat, y)
-    self.log('val_loss', loss, sync_dist=True)
+    output = self.model(batch)
+    y_hat = output['prediction']
+    y = batch[0]['target']
+
+    # Select 0.5 quantile (median)
+    median_idx = self.model.quantiles.index(0.5)
+    y_hat_median = y_hat[..., median_idx]
+
+    self.mae.update(y_hat_median.flatten(), y.flatten())
+    self.mse.update(y_hat_median.flatten(), y.flatten())
+
+    return {'y': y, 'y_hat': y_hat_median}
+
+  def test_epoch_end(self, outputs):
+    mae = self.mae.compute()
+    mse = self.mse.compute()
+    self.log('test_mae', mae)
+    self.log('test_mse', mse)
+    self.mae.reset()
+    self.mse.reset()
 
   def configure_optimizers(self):
     optimizer = optim.Ranger(self.mftft_model.parameters(),
@@ -117,8 +135,8 @@ class LightningMFTFT(L.LightningModule):
     return optimizer
   
   @classmethod
-  def load_with_model(cls, checkpoint_path, model_class, dataset):
-      model = model_class(dataset)
+  def load_with_model(cls, checkpoint_path, dataset):
+      model = MFTFT(dataset)
       wrapper = cls(model)
       checkpoint = torch.load(checkpoint_path)
       wrapper.load_state_dict(checkpoint['state_dict'])
