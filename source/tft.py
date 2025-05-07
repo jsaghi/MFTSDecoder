@@ -66,7 +66,7 @@ class LightningTFT(L.LightningModule):
   def test_step(self, batch, batch_idx):
     x, y = batch
     loss_fn = self.tft_model.loss
-    y_hat = self.tft_model(x)
+    y_hat = self.tft_model(x)[0]
     loss = loss_fn(y_hat, y)
 
     # Use median quantile for point estimate
