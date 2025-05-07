@@ -70,12 +70,10 @@ class LightningTFT(L.LightningModule):
     loss = loss_fn(y_hat, y)
 
     # Use median quantile for point estimate
-    median_idx = self.tft_model.quantiles.index(0.5)
-    y_median = y_hat[..., median_idx]
-    #y_median = y_hat[:, :, 1]
+    y_median = y_hat[:, :, 1]
 
-    mae = self.logging_metrics['mae'](y_median, y)
-    mse = self.logging_metrics['mse'](y_median, y)
+    mae = self.logging_metrics['mae'](y_median, y[0])
+    mse = self.logging_metrics['mse'](y_median, y[0])
 
     self.test_outputs.append({
       'loss': loss.detach(),
