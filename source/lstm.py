@@ -44,6 +44,7 @@ class LightningLSTM(L.LightningModule):
     #self.save_hyperparameters()
     self.model = model
     self.loss = nn.MSELoss()
+    self.mae_loss = nn.L1Loss()
 
   def forward(self, x):
     return self.model(x)
@@ -61,6 +62,15 @@ class LightningLSTM(L.LightningModule):
     loss = self.loss(y_hat, y)
     self.log("val_loss", loss, sync_dist=True)
     return loss
+  
+  def test_step(self, batch, batch_idx):
+    x, y = batch
+    y_hat = self.decoder(x)
+    test_loss = F.mse_loss(y_hat, y)
+    mae = self.mae_loss(y_hat, y)
+    self.log('test_loss', test_loss)
+    self.log('mae_loss', mae)
+    return test_loss, mae
 
   def configure_optimizers(self):
     return torch.optim.Adam(self.parameters(), lr=LSTM_LR)
