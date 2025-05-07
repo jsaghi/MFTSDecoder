@@ -24,7 +24,7 @@ _, _, mf_lstm_test = data.get_mf_lstm_data()
 
 # Build a dictionary of models and their checkpoint filenames
 lstm_models = {
-  #'lf_lstm' : ['lf_lstm-epoch=69.ckpt', False, LF_DELAY, lf_lstm_test],
+  'lf_lstm' : ['lf_lstm-epoch=69.ckpt', False, LF_DELAY, lf_lstm_test],
   'hf_lstm' : ['hf_lstm-epoch=11.ckpt', False, DELAY, hf_lstm_test],
   'midas_lstm' : ['lstm_imputed-epoch=19.ckpt', False, DELAY, midas_lstm_test],
   'mf_lstm' : ['mf_lstm-epoch=12.ckpt', True, DELAY, mf_lstm_test]
