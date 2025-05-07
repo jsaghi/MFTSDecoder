@@ -38,6 +38,11 @@ class LightningTFT(L.LightningModule):
        'mse' : MeanSquaredError(),
     }
 
+  def setup(self, stage=None):
+    device = self.device
+    for metric in self.logging_metrics.values():
+        metric.to(device)
+
   def training_step(self, batch, batch_idx):
     x, y = batch
     loss_fn = self.tft_model.loss
