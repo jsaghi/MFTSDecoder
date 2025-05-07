@@ -1,8 +1,8 @@
 from settings import *
 import data
 from conv_upsamplers import LightningDecoder
-from expander6x_variants import *
-from expander36x_variants import *
+from CU6X_variants import *
+from CU36X_variants import *
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
