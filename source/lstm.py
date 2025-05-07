@@ -66,8 +66,11 @@ class LightningLSTM(L.LightningModule):
     return torch.optim.Adam(self.parameters(), lr=LSTM_LR)
   
   @classmethod
-  def load_with_model(cls, checkpoint_path, model_class):
-      model = model_class(DELAY)
+  def load_with_model(cls, checkpoint_path, mf=False, delay=None):
+      if not mf:
+        model = LSTM_Predict(delay)
+      else:
+        model = MFLSTM()
       wrapper = cls(model)
       checkpoint = torch.load(checkpoint_path)
       wrapper.load_state_dict(checkpoint['state_dict'])
