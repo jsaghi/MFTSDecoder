@@ -10,7 +10,7 @@ import pickle
 
 # Set torch.matmul precision
 torch.set_float32_matmul_precision('high')
-'''
+
 # Build a dictionary of results to be saved after all evaluation has been completed
 lstm_results = {}
 
@@ -42,8 +42,8 @@ for key, value in lstm_models.items():
 with open(EVAL_PATH + 'cu_eval_results.pkl', 'wb') as f:
   pickle.dump(lstm_results, f)
 
+
 # Evaluate all tft models
-'''
 
 # Generate test datasets
 lf_dataset, _, _, lf_tft_test = data.get_time_series(36)
