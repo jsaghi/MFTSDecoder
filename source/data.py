@@ -382,8 +382,13 @@ def get_imputed_ts():
 # Function that returns train, validation, and test dataloaders for mixed frequency multivariate
 # time series. This is the data pipline to train and test the combined prediction models
 def get_mfts():
-  data = scale_jena()
-  data.drop(['Date Time'], axis=1, inplace=True)
+  raw_data = scale_jena()
+  raw_data.drop(['Date Time'], axis=1, inplace=True)
+  #data = raw_data.copy()
+
+  # Code to use only a fraction of the full jena dataset
+  q1_index = int(len(raw_data // 4))
+  data = raw_data.iloc[:q1_index, :]
 
   dataset = build_time_series(data)
 
