@@ -387,8 +387,9 @@ def get_mfts():
   #data = raw_data.copy()
 
   # Code to use only a fraction of the full jena dataset
-  q1_index = int(len(raw_data) // 4)
-  data = raw_data.iloc[:q1_index, :]
+  q_index_start = int(len(raw_data) // 2)
+  q_index_end = int(len(raw_data) // 4 * 3)
+  data = raw_data.iloc[q_index_start:q_index_end, :]
 
   dataset = build_time_series(data)
 
