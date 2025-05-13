@@ -417,9 +417,21 @@ def get_mfts():
 
 # Function that returns train, validation, and test dataloaders for mixed frequency multivariate
 # time series. This is the data pipline to train and test the combined prediction models
-def get_mf_lstm_data():
-  data = scale_jena()
-  data.drop(['Date Time'], axis=1, inplace=True)
+def get_mf_lstm_data(q):
+  raw_data = scale_jena()
+  raw_data.drop(['Date Time'], axis=1, inplace=True)
+
+  if q == 1:
+    q_index_start = 0
+    q_index_end = int(len(raw_data) // 4)
+  elif q == 2:
+    q_index_start = int(len(raw_data) // 4)
+    q_index_end = int(len(raw_data) // 2)
+  else:
+    q_index_start = int(len(raw_data) // 2)
+    q_index_end = int(len(raw_data) // 4 * 3)
+
+  data = raw_data.iloc[q_index_start:q_index_end, :]
 
   lf_data = data[['T (degC)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)']].to_numpy()
   if_data = data[['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)']].to_numpy()
