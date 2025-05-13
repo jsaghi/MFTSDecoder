@@ -427,9 +427,12 @@ def get_mf_lstm_data(q):
   elif q == 2:
     q_index_start = int(len(raw_data) // 4)
     q_index_end = int(len(raw_data) // 2)
-  else:
+  elif q == 3:
     q_index_start = int(len(raw_data) // 2)
     q_index_end = int(len(raw_data) // 4 * 3)
+  else:
+    q_index_start = int(len(raw_data) // 4 * 3)
+    q_index_end = int(len(raw_data))
 
   data = raw_data.iloc[q_index_start:q_index_end, :]
 
