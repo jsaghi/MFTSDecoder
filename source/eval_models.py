@@ -11,18 +11,19 @@ import pickle
 # Set torch.matmul precision
 torch.set_float32_matmul_precision('high')
 
+'''
 # Build a dictionary of results to be saved after all evaluation has been completed
 lstm_results = {}
 
 # Evaluate all lstm models
 
 # Generate test datasets
-'''
+
 _, _, lf_lstm_test = data.get_lstm_ts(36)
 _, _, hf_lstm_test = data.get_lstm_ts()
 _, _, midas_lstm_test = data.get_lstm_ts_imputed()
 _, _, mf_lstm_test = data.get_mf_lstm_data()
-'''
+
 _, _, q1_lstm_test = data.get_mf_lstm_data(1)
 _, _, q2_lstm_test = data.get_mf_lstm_data(2)
 _, _, q3_lstm_test = data.get_mf_lstm_data(3)
@@ -51,7 +52,7 @@ for key, value in lstm_models.items():
 with open(EVAL_PATH + 'cu_eval_results.pkl', 'wb') as f:
   pickle.dump(lstm_results, f)
 
-
+'''
 # Evaluate all tft models
 
 # Generate test datasets
@@ -80,9 +81,9 @@ tft_models = {
 for key, value in tft_models.items():
   logger = CSVLogger(save_dir=EVAL_PATH + key)
   trainer = L.Trainer(logger=logger)
-  if key != 'mftft':
-    eval_model = LightningTFT.load_with_model(MODEL_PATH + value[0], value[1])
-  else:
-    eval_model = LightningMFTFT.load_with_model(MODEL_PATH + value[0], value[1])
+  #if key != 'mftft':
+  #  eval_model = LightningTFT.load_with_model(MODEL_PATH + value[0], value[1])
+  #else:
+  eval_model = LightningMFTFT.load_with_model(MODEL_PATH + value[0], value[1])
   eval_model.eval()
   result = trainer.test(eval_model, value[2])
