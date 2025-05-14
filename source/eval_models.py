@@ -30,12 +30,10 @@ _, _, q3_lstm_test = data.get_mf_lstm_data(3)
 
 # Build a dictionary of models and their checkpoint filenames
 lstm_models = {
-  '''
-  'lf_lstm' : ['lf_lstm-epoch=69.ckpt', False, LF_DELAY, lf_lstm_test],
-  'hf_lstm' : ['hf_lstm-epoch=11.ckpt', False, DELAY, hf_lstm_test],
-  'midas_lstm' : ['lstm_imputed-epoch=19.ckpt', False, DELAY, midas_lstm_test],
-  'mf_lstm' : ['mf_lstm-epoch=12.ckpt', True, DELAY, mf_lstm_test]
-  '''
+  #'lf_lstm' : ['lf_lstm-epoch=69.ckpt', False, LF_DELAY, lf_lstm_test],
+  #'hf_lstm' : ['hf_lstm-epoch=11.ckpt', False, DELAY, hf_lstm_test],
+  #'midas_lstm' : ['lstm_imputed-epoch=19.ckpt', False, DELAY, midas_lstm_test],
+  #'mf_lstm' : ['mf_lstm-epoch=12.ckpt', True, DELAY, mf_lstm_test]
   'q1_mf_lstm' : ['mf_lstm_q1-epoch=21.ckpt', True, DELAY, q1_lstm_test],
   'q2_mf_lstm' : ['mf_lstm_q2-epoch=15.ckpt', True, DELAY, q2_lstm_test],
   'q3_mf_lstm' : ['mf_lstm_q3-epoch=19.ckpt', True, DELAY, q3_lstm_test]
@@ -70,12 +68,10 @@ _, _, _, q3_tft_test = data.get_mfts(3)
 
 # Build a dictionary of models and their checkpoint filenames
 tft_models = {
-  '''
-  'lf_tft' : ['lf_tft-epoch=153.ckpt', lf_dataset, lf_tft_test],
-  'hf_tft' : ['hf_tft-epoch=2.ckpt', full_dataset, hf_tft_test],
-  'midas_tft' : ['midas_tft-epoch=4.ckpt', full_dataset, midas_tft_test],
-  'mftft' : ['mftft2-epoch=39.ckpt', full_dataset, mftft_test]
-  '''
+  #'lf_tft' : ['lf_tft-epoch=153.ckpt', lf_dataset, lf_tft_test],
+  #'hf_tft' : ['hf_tft-epoch=2.ckpt', full_dataset, hf_tft_test],
+  #'midas_tft' : ['midas_tft-epoch=4.ckpt', full_dataset, midas_tft_test],
+  #'mftft' : ['mftft2-epoch=39.ckpt', full_dataset, mftft_test]
   'q1_mftft' : ['mftft_q1-epoch=13.ckpt', full_dataset, q1_tft_test],
   'q2_mftft' : ['mftft_q2-epoch=21.ckpt', full_dataset, q2_tft_test],
   'q3_mftft' : ['mftft_q3-epoch=23.ckpt', full_dataset, q3_tft_test]
