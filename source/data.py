@@ -381,15 +381,29 @@ def get_imputed_ts():
 
 # Function that returns train, validation, and test dataloaders for mixed frequency multivariate
 # time series. This is the data pipline to train and test the combined prediction models
-def get_mfts():
+def get_mfts(q=None):
   raw_data = scale_jena()
   raw_data.drop(['Date Time'], axis=1, inplace=True)
-  #data = raw_data.copy()
 
-  # Code to use only a fraction of the full jena dataset
-  q_index_start = int(len(raw_data) // 4)
-  q_index_end = int(len(raw_data) // 2)
-  data = raw_data.iloc[q_index_start:q_index_end, :]
+  # Code to use only part of the dataset
+  if q is not None:
+    if q == 1:
+      q_index_start = 0
+      q_index_end = int(len(raw_data) // 4)
+    elif q == 2:
+      q_index_start = int(len(raw_data) // 4)
+      q_index_end = int(len(raw_data) // 2)
+    elif q == 3:
+      q_index_start = int(len(raw_data) // 2)
+      q_index_end = int(len(raw_data) // 4 * 3)
+    else:
+      q_index_start = int(len(raw_data) // 4 * 3)
+      q_index_end = int(len(raw_data))
+
+    data = raw_data.iloc[q_index_start:q_index_end, :]
+    
+  else:
+    data = raw_data.copy()
 
   dataset = build_time_series(data)
 
@@ -417,24 +431,28 @@ def get_mfts():
 
 # Function that returns train, validation, and test dataloaders for mixed frequency multivariate
 # time series. This is the data pipline to train and test the combined prediction models
-def get_mf_lstm_data(q):
+def get_mf_lstm_data(q=None):
   raw_data = scale_jena()
   raw_data.drop(['Date Time'], axis=1, inplace=True)
 
-  if q == 1:
-    q_index_start = 0
-    q_index_end = int(len(raw_data) // 4)
-  elif q == 2:
-    q_index_start = int(len(raw_data) // 4)
-    q_index_end = int(len(raw_data) // 2)
-  elif q == 3:
-    q_index_start = int(len(raw_data) // 2)
-    q_index_end = int(len(raw_data) // 4 * 3)
-  else:
-    q_index_start = int(len(raw_data) // 4 * 3)
-    q_index_end = int(len(raw_data))
+  if q is not None:
+    if q == 1:
+      q_index_start = 0
+      q_index_end = int(len(raw_data) // 4)
+    elif q == 2:
+      q_index_start = int(len(raw_data) // 4)
+      q_index_end = int(len(raw_data) // 2)
+    elif q == 3:
+      q_index_start = int(len(raw_data) // 2)
+      q_index_end = int(len(raw_data) // 4 * 3)
+    else:
+      q_index_start = int(len(raw_data) // 4 * 3)
+      q_index_end = int(len(raw_data))
 
-  data = raw_data.iloc[q_index_start:q_index_end, :]
+    data = raw_data.iloc[q_index_start:q_index_end, :]
+
+  else:
+    data = raw_data.copy()
 
   lf_data = data[['T (degC)', 'Tdew (degC)', 'rh (%)', 'sh (g/kg)', 'H2OC (mmol/mol)']].to_numpy()
   if_data = data[['p (mbar)', 'VPmax (mbar)', 'VPact (mbar)', 'VPdef (mbar)']].to_numpy()
