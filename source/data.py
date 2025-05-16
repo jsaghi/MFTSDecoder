@@ -403,7 +403,7 @@ def get_mfts(q=None):
     data = raw_data.iloc[q_index_start:q_index_end, :]
     
   else:
-    data = raw_data.copy()
+    data = raw_data
 
   dataset = build_time_series(data)
 
