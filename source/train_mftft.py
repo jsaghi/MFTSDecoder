@@ -31,18 +31,18 @@ early_stopping = EarlyStopping(
   verbose=True
   )
 
-logger = CSVLogger(save_dir=HISTORY_PATH + 'mftft_q2')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'mftft_v2')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='mftft_q2' + '-{epoch}',
+    filename='mftft_v2' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
   )
 
 trainer = L.Trainer(
-    max_epochs=100,
+    max_epochs=150,
     logger=logger,
     callbacks=[checkpoint, early_stopping],
 )
