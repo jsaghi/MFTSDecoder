@@ -31,11 +31,11 @@ early_stopping = EarlyStopping(
   verbose=True
   )
 
-logger = CSVLogger(save_dir=HISTORY_PATH + 'mftft_v3')
+logger = CSVLogger(save_dir=HISTORY_PATH + 'mftft_rh')
 checkpoint = ModelCheckpoint(
     monitor='val_loss',
     dirpath=MODEL_PATH,
-    filename='mftft_v3' + '-{epoch}',
+    filename='mftft_rh' + '-{epoch}',
     save_top_k=5,
     mode='min',
     verbose=True
