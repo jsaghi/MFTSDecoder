@@ -199,7 +199,9 @@ def scale_jena():
   unscaled = pd.concat([pd.DataFrame(time_idx, columns=['time_idx']),
                       jena[['Date Time', 'season', 'month', 'hour_of_day']],
                       group_id], axis=1)
-  targets = jena['T (degC)'].rename('Targets')
+  # Uncomment to use temperature in degrees celsius the target
+  # targets = jena['T (degC)'].rename('Targets')
+  targets = jena['rh (%)'].rename('Targets')
   log_transform = jena[['VPmax (mbar)',
                         'VPdef (mbar)',
                         'sh (g/kg)',
