@@ -201,7 +201,7 @@ def scale_jena():
                       group_id], axis=1)
   # Uncomment to use temperature in degrees celsius the target
   # targets = jena['T (degC)'].rename('Targets')
-  targets = jena['Tdew (degC)'].rename('Targets')
+  targets = jena['sh (g/kg)'].rename('Targets')
   log_transform = jena[['VPmax (mbar)',
                         'VPdef (mbar)',
                         'sh (g/kg)',
